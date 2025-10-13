@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Ofertas Tacna{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+            <button class="btn btn-success" onclick="extraerOfertas()">
+                <i class="fas fa-sync-alt me-2"></i>Extraer Ofertas
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Generales -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_ofertas }}</h4>
+                        <p class="mb-0">Total Ofertas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-briefcase fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ fuentes.get('Computrabajo', 0) }}</h4>
+                        <p class="mb-0">Computrabajo</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-globe fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ fuentes.get('Indeed', 0) }}</h4>
+                        <p class="mb-0">Indeed</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-search fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ fuentes.get('Bumeran', 0) }}</h4>
+                        <p class="mb-0">Bumeran</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Fuentes -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Ofertas por Fuente</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="fuentesChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line me-2"></i>Actividad Reciente</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Últimas ofertas agregadas al sistema:</p>
+                <div class="list-group list-group-flush">
+                    {% for oferta in ofertas[:5] %}
+                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ oferta.titulo_oferta[:50] }}{% if oferta.titulo_oferta|length > 50 %}...{% endif %}</div>
+                            <small class="text-muted">{{ oferta.empresa }} • {{ oferta.fuente }}</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ oferta.nivel_academico }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ofertas Recientes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-list me-2"></i>Ofertas Recientes</h5>
+                <a href="{{ url_for('ofertas') }}" class="btn btn-outline-primary btn-sm">
+                    Ver Todas <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if ofertas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Empresa</th>
+                                <th>Nivel</th>
+                                <th>Modalidad</th>
+                                <th>Fuente</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for oferta in ofertas %}
+                            <tr>
+                                <td>
+                                    <strong>{{ oferta.titulo_oferta[:60] }}{% if oferta.titulo_oferta|length > 60 %}...{% endif %}</strong>
+                                </td>
+                                <td>{{ oferta.empresa }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if oferta.nivel_academico == 'Profesional' else 'primary' if oferta.nivel_academico == 'Practicante' else 'warning' }}">
+                                        {{ oferta.nivel_academico }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if oferta.modalidad == 'Presencial' else 'success' if oferta.modalidad == 'Remoto' else 'info' }}">
+                                        {{ oferta.modalidad }}
+                                    </span>
+                                </td>
+                                <td>{{ oferta.fuente }}</td>
+                                <td>{{ oferta.fecha_publicacion }}</td>
+                                <td>
+                                    <a href="{{ url_for('ver_oferta', oferta_id=oferta.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No hay ofertas disponibles. Haz clic en "Extraer Ofertas" para comenzar.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Extracción -->
+<div class="modal fade" id="extraccionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-sync-alt me-2"></i>Extrayendo Ofertas
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p><strong>Extrayendo ofertas laborales...</strong></p>
+                <p class="text-muted">Buscando en 4 portales web para Tacna</p>
+                <p class="text-muted"><small>Esto puede tomar 2-5 minutos. Por favor, no cierres esta ventana.</small></p>
+                <div class="progress mt-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Gráfico de fuentes
+const fuentesData = {{ fuentes | tojson }};
+const ctx = document.getElementById('fuentesChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(fuentesData),
+        datasets: [{
+            data: Object.values(fuentesData),
+            backgroundColor: [
+                '#007bff',
+                '#28a745',
+                '#ffc107',
+                '#dc3545',
+                '#6f42c1',
+                '#20c997'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Función para extraer ofertas
+function extraerOfertas() {
+    const modal = new bootstrap.Modal(document.getElementById('extraccionModal'));
+    modal.show();
+    
+    // Deshabilitar el botón para evitar múltiples clics
+    const btn = document.querySelector('button[onclick="extraerOfertas()"]');
+    if (btn) btn.disabled = true;
+    
+    fetch('/extraer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        modal.hide();
+        if (data.success) {
+            alert(`Extracción completada exitosamente:\n- Nuevas ofertas: ${data.nuevas_ofertas}\n- Actualizadas: ${data.actualizadas}\n- Errores: ${data.errores}\n- Total procesadas: ${data.total_procesadas}`);
+            location.reload();
+        } else {
+            alert('Error en la extracción: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        modal.hide();
+        console.error('Error en extracción:', error);
+        alert('Error en la extracción: ' + error.message + '\n\nPor favor, verifica que el servidor esté funcionando correctamente.');
+    })
+    .finally(() => {
+        // Rehabilitar el botón
+        if (btn) btn.disabled = false;
+    });
+}
+</script>
+{% endblock %}

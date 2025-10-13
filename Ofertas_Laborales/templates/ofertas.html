@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Ofertas Laborales - Tacna{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-list me-2"></i>Ofertas Laborales</h1>
+            <div>
+                <button class="btn btn-success me-2" onclick="extraerOfertas()">
+                    <i class="fas fa-sync-alt me-2"></i>Extraer Ofertas
+                </button>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filtrosModal">
+                    <i class="fas fa-filter me-2"></i>Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros Rápidos -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" id="filtrosForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="busqueda" class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="busqueda" name="busqueda" 
+                                   value="{{ filtros.get('busqueda', '') }}" placeholder="Título, puesto, empresa...">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="nivel_academico" class="form-label">Nivel</label>
+                            <select class="form-select" id="nivel_academico" name="nivel_academico">
+                                <option value="">Todos</option>
+                                <option value="Practicante" {{ 'selected' if filtros.get('nivel_academico') == 'Practicante' else '' }}>Practicante</option>
+                                <option value="Bachiller" {{ 'selected' if filtros.get('nivel_academico') == 'Bachiller' else '' }}>Bachiller</option>
+                                <option value="Profesional" {{ 'selected' if filtros.get('nivel_academico') == 'Profesional' else '' }}>Profesional</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="modalidad" class="form-label">Modalidad</label>
+                            <select class="form-select" id="modalidad" name="modalidad">
+                                <option value="">Todas</option>
+                                <option value="Presencial" {{ 'selected' if filtros.get('modalidad') == 'Presencial' else '' }}>Presencial</option>
+                                <option value="Remoto" {{ 'selected' if filtros.get('modalidad') == 'Remoto' else '' }}>Remoto</option>
+                                <option value="Híbrido" {{ 'selected' if filtros.get('modalidad') == 'Híbrido' else '' }}>Híbrido</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="empresa" class="form-label">Empresa</label>
+                            <input type="text" class="form-control" id="empresa" name="empresa" 
+                                   value="{{ filtros.get('empresa', '') }}" placeholder="Nombre empresa">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Ofertas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-briefcase me-2"></i>Resultados ({{ ofertas|length }} ofertas)</h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarVista('tabla')">
+                        <i class="fas fa-table"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarVista('tarjetas')">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if ofertas %}
+                <!-- Vista Tabla -->
+                <div id="vistaTabla">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Empresa</th>
+                                    <th>Nivel</th>
+                                    <th>Experiencia</th>
+                                    <th>Modalidad</th>
+                                    <th>Salario</th>
+                                    <th>Fuente</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ oferta.titulo_oferta }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ oferta.puesto }}</small>
+                                    </td>
+                                    <td>{{ oferta.empresa }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if oferta.nivel_academico == 'Profesional' else 'primary' if oferta.nivel_academico == 'Practicante' else 'warning' }}">
+                                            {{ oferta.nivel_academico }}
+                                        </span>
+                                    </td>
+                                    <td>{{ oferta.experiencia_minima_anios }} años</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if oferta.modalidad == 'Presencial' else 'success' if oferta.modalidad == 'Remoto' else 'info' }}">
+                                            {{ oferta.modalidad }}
+                                        </span>
+                                    </td>
+                                    <td>{{ oferta.salario }}</td>
+                                    <td>{{ oferta.fuente }}</td>
+                                    <td>{{ oferta.fecha_publicacion }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('ver_oferta', oferta_id=oferta.id) }}" 
+                                               class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ oferta.url_oferta }}" target="_blank" 
+                                               class="btn btn-sm btn-outline-success" title="Ver oferta original">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Vista Tarjetas -->
+                <div id="vistaTarjetas" style="display: none;">
+                    <div class="row">
+                        {% for oferta in ofertas %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-start">
+                                    <h6 class="card-title mb-0">{{ oferta.titulo_oferta[:50] }}{% if oferta.titulo_oferta|length > 50 %}...{% endif %}</h6>
+                                    <span class="badge bg-{{ 'success' if oferta.nivel_academico == 'Profesional' else 'primary' if oferta.nivel_academico == 'Practicante' else 'warning' }}">
+                                        {{ oferta.nivel_academico }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>{{ oferta.empresa }}</strong><br>
+                                        <small class="text-muted">{{ oferta.puesto }}</small>
+                                    </p>
+                                    <p class="card-text">
+                                        <small>
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ oferta.ubicacion }}<br>
+                                            <i class="fas fa-clock me-1"></i>{{ oferta.modalidad }}<br>
+                                            <i class="fas fa-briefcase me-1"></i>{{ oferta.experiencia_minima_anios }} años exp.<br>
+                                            <i class="fas fa-dollar-sign me-1"></i>{{ oferta.salario }}
+                                        </small>
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">{{ oferta.responsabilidades_breve[:100] }}{% if oferta.responsabilidades_breve|length > 100 %}...{% endif %}</small>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ oferta.fuente }} • {{ oferta.fecha_publicacion }}</small>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('ver_oferta', oferta_id=oferta.id) }}" 
+                                               class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ oferta.url_oferta }}" target="_blank" 
+                                               class="btn btn-sm btn-outline-success" title="Ver oferta original">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No se encontraron ofertas</h5>
+                    <p class="text-muted">Intenta ajustar los filtros de búsqueda o extraer nuevas ofertas.</p>
+                    <button class="btn btn-primary" onclick="extraerOfertas()">
+                        <i class="fas fa-sync-alt me-2"></i>Extraer Ofertas
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Extracción -->
+<div class="modal fade" id="extraccionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-sync-alt me-2"></i>Extrayendo Ofertas
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p>Buscando ofertas laborales en los portales web...</p>
+                <p class="text-muted">Esto puede tomar unos minutos.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Función para cambiar vista
+function cambiarVista(vista) {
+    const tabla = document.getElementById('vistaTabla');
+    const tarjetas = document.getElementById('vistaTarjetas');
+    
+    if (vista === 'tabla') {
+        tabla.style.display = 'block';
+        tarjetas.style.display = 'none';
+    } else {
+        tabla.style.display = 'none';
+        tarjetas.style.display = 'block';
+    }
+}
+
+// Función para extraer ofertas
+function extraerOfertas() {
+    const modal = new bootstrap.Modal(document.getElementById('extraccionModal'));
+    modal.show();
+    
+    fetch('/extraer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            use_ai: true
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        modal.hide();
+        if (data.success) {
+            alert(`Extracción completada:\n- Nuevas ofertas: ${data.nuevas_ofertas}\n- Actualizadas: ${data.actualizadas}\n- Errores: ${data.errores}`);
+            location.reload();
+        } else {
+            alert('Error en la extracción: ' + data.error);
+        }
+    })
+    .catch(error => {
+        modal.hide();
+        alert('Error en la extracción: ' + error);
+    });
+}
+</script>
+{% endblock %}

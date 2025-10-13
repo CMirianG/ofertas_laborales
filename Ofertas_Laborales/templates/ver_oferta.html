@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}{{ oferta.titulo_oferta }} - Ofertas Tacna{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('ofertas') }}">Ofertas</a></li>
+                <li class="breadcrumb-item active">{{ oferta.titulo_oferta[:30] }}{% if oferta.titulo_oferta|length > 30 %}...{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="card-title mb-1">{{ oferta.titulo_oferta }}</h2>
+                        <h5 class="text-muted mb-0">{{ oferta.empresa }}</h5>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-{{ 'success' if oferta.nivel_academico == 'Profesional' else 'info' if oferta.nivel_academico == 'Técnico' else 'warning' }} fs-6">
+                            {{ oferta.nivel_academico }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Información Principal -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-briefcase me-2"></i>Puesto</h6>
+                        <p class="text-muted">{{ oferta.puesto }}</p>
+                        
+                        <h6><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
+                        <p class="text-muted">{{ oferta.ubicacion }}</p>
+                        
+                        <h6><i class="fas fa-clock me-2"></i>Modalidad</h6>
+                        <p class="text-muted">
+                            <span class="badge bg-{{ 'primary' if oferta.modalidad == 'Presencial' else 'success' if oferta.modalidad == 'Remoto' else 'info' }}">
+                                {{ oferta.modalidad }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user-graduate me-2"></i>Experiencia Requerida</h6>
+                        <p class="text-muted">{{ oferta.experiencia_minima_anios }} años</p>
+                        
+                        <h6><i class="fas fa-calendar me-2"></i>Jornada</h6>
+                        <p class="text-muted">{{ oferta.jornada }}</p>
+                        
+                        <h6><i class="fas fa-dollar-sign me-2"></i>Salario</h6>
+                        <p class="text-muted">{{ oferta.salario }}</p>
+                    </div>
+                </div>
+
+                <!-- Responsabilidades -->
+                <div class="mb-4">
+                    <h6><i class="fas fa-tasks me-2"></i>Responsabilidades</h6>
+                    <p class="text-muted">{{ oferta.responsabilidades_breve }}</p>
+                </div>
+
+                <!-- Conocimientos Clave -->
+                <div class="mb-4">
+                    <h6><i class="fas fa-cogs me-2"></i>Conocimientos Clave</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for conocimiento in oferta.conocimientos_clave.split(',') %}
+                        <span class="badge bg-secondary">{{ conocimiento.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Documentos Requeridos -->
+                <div class="mb-4">
+                    <h6><i class="fas fa-file-alt me-2"></i>Documentos Requeridos</h6>
+                    <p class="text-muted">{{ oferta.documentos_requeridos }}</p>
+                </div>
+
+                <!-- Cómo Postular -->
+                <div class="mb-4">
+                    <h6><i class="fas fa-paper-plane me-2"></i>Cómo Postular</h6>
+                    <p class="text-muted">{{ oferta.como_postular }}</p>
+                </div>
+
+                <!-- Contacto -->
+                {% if oferta.contacto and oferta.contacto != 'No especificado' %}
+                <div class="mb-4">
+                    <h6><i class="fas fa-phone me-2"></i>Contacto</h6>
+                    <p class="text-muted">{{ oferta.contacto }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Etiquetas -->
+                {% if oferta.etiquetas %}
+                <div class="mb-4">
+                    <h6><i class="fas fa-tags me-2"></i>Etiquetas</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for etiqueta in oferta.etiquetas.split(',') %}
+                        <span class="badge bg-light text-dark">{{ etiqueta.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            Publicado: {{ oferta.fecha_publicacion }}
+                            {% if oferta.fecha_estimacion %}
+                                <span class="text-warning">(Estimado)</span>
+                            {% endif %}
+                        </small>
+                        {% if oferta.fecha_cierre and oferta.fecha_cierre != 'No especificado' %}
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-times me-1"></i>
+                            Cierre: {{ oferta.fecha_cierre }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{{ oferta.url_oferta }}" target="_blank" class="btn btn-success">
+                            <i class="fas fa-external-link-alt me-2"></i>Ver Oferta Original
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Información de la Empresa -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-building me-2"></i>Información de la Empresa</h6>
+            </div>
+            <div class="card-body">
+                <h6>{{ oferta.empresa }}</h6>
+                <p class="text-muted mb-0">Fuente: {{ oferta.fuente }}</p>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ oferta.url_oferta }}" target="_blank" class="btn btn-success">
+                        <i class="fas fa-external-link-alt me-2"></i>Postular Ahora
+                    </a>
+                    <button class="btn btn-outline-primary" onclick="compartirOferta()">
+                        <i class="fas fa-share me-2"></i>Compartir
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="imprimirOferta()">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Sistema -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle me-2"></i>Información del Sistema</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>ID:</strong> {{ oferta.id }}<br>
+                    <strong>Fuente:</strong> {{ oferta.fuente }}<br>
+                    <strong>Agregado:</strong> {{ oferta.created_at.strftime('%d/%m/%Y %H:%M') if oferta.created_at else 'N/A' }}<br>
+                    <strong>Actualizado:</strong> {{ oferta.updated_at.strftime('%d/%m/%Y %H:%M') if oferta.updated_at else 'N/A' }}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function compartirOferta() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ oferta.titulo_oferta }}',
+            text: 'Oferta laboral en {{ oferta.empresa }} - {{ oferta.ubicacion }}',
+            url: window.location.href
+        });
+    } else {
+        // Fallback para navegadores que no soportan Web Share API
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Enlace copiado al portapapeles');
+        });
+    }
+}
+
+function imprimirOferta() {
+    window.print();
+}
+</script>
+{% endblock %}

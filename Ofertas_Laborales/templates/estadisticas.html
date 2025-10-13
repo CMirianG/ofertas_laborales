@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas - Ofertas Tacna{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-chart-bar me-2"></i>Estadísticas</h1>
+        <p class="text-muted">Análisis detallado de las ofertas laborales en Tacna</p>
+    </div>
+</div>
+
+<!-- Resumen General -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>{{ total_ofertas }}</h3>
+                        <p class="mb-0">Total Ofertas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-briefcase fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>{{ niveles.get('Profesional', 0) }}</h3>
+                        <p class="mb-0">Profesionales</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-graduate fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>{{ niveles.get('Técnico', 0) }}</h3>
+                        <p class="mb-0">Técnicos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tools fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>{{ niveles.get('Bachiller', 0) }}</h3>
+                        <p class="mb-0">Bachilleres</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-graduation-cap fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Distribución por Nivel Académico</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="nivelesChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-doughnut me-2"></i>Distribución por Modalidad</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="modalidadesChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar me-2"></i>Ofertas por Fuente</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="fuentesChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line me-2"></i>Evolución Temporal</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="temporalChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tablas Detalladas -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-table me-2"></i>Top Empresas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Ofertas</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set empresas_ordenadas = fuentes.items() | list %}
+                            {% for empresa, cantidad in empresas_ordenadas[:10] %}
+                            <tr>
+                                <td>{{ empresa }}</td>
+                                <td>{{ cantidad }}</td>
+                                <td>{{ "%.1f"|format((cantidad / total_ofertas * 100) if total_ofertas > 0 else 0) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Resumen por Modalidad</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Modalidad</th>
+                                <th>Ofertas</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for modalidad, cantidad in modalidades.items() %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if modalidad == 'Presencial' else 'success' if modalidad == 'Remoto' else 'info' }}">
+                                        {{ modalidad }}
+                                    </span>
+                                </td>
+                                <td>{{ cantidad }}</td>
+                                <td>{{ "%.1f"|format((cantidad / total_ofertas * 100) if total_ofertas > 0 else 0) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información Adicional -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Última Actualización</h6>
+                        <p class="text-muted">{{ moment().format('DD/MM/YYYY HH:mm') }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Fuentes Monitoreadas</h6>
+                        <p class="text-muted">{{ fuentes|length }} portales</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Estado del Sistema</h6>
+                        <p class="text-success">
+                            <i class="fas fa-check-circle me-1"></i>Activo
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Datos para los gráficos
+const nivelesData = {{ niveles | tojson }};
+const modalidadesData = {{ modalidades | tojson }};
+const fuentesData = {{ fuentes | tojson }};
+
+// Gráfico de Niveles Académicos
+const nivelesCtx = document.getElementById('nivelesChart').getContext('2d');
+new Chart(nivelesCtx, {
+    type: 'pie',
+    data: {
+        labels: Object.keys(nivelesData),
+        datasets: [{
+            data: Object.values(nivelesData),
+            backgroundColor: [
+                '#28a745', // Profesional - Verde
+                '#17a2b8', // Técnico - Azul
+                '#ffc107'  // Bachiller - Amarillo
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Gráfico de Modalidades
+const modalidadesCtx = document.getElementById('modalidadesChart').getContext('2d');
+new Chart(modalidadesCtx, {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(modalidadesData),
+        datasets: [{
+            data: Object.values(modalidadesData),
+            backgroundColor: [
+                '#007bff', // Presencial - Azul
+                '#28a745', // Remoto - Verde
+                '#17a2b8'  // Híbrido - Cian
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Gráfico de Fuentes
+const fuentesCtx = document.getElementById('fuentesChart').getContext('2d');
+new Chart(fuentesCtx, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(fuentesData),
+        datasets: [{
+            label: 'Ofertas',
+            data: Object.values(fuentesData),
+            backgroundColor: [
+                '#007bff',
+                '#28a745',
+                '#ffc107',
+                '#dc3545',
+                '#6f42c1',
+                '#20c997'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Gráfico Temporal (simulado)
+const temporalCtx = document.getElementById('temporalChart').getContext('2d');
+const fechas = [];
+const ofertasPorDia = [];
+const hoy = new Date();
+for (let i = 6; i >= 0; i--) {
+    const fecha = new Date(hoy);
+    fecha.setDate(fecha.getDate() - i);
+    fechas.push(fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }));
+    ofertasPorDia.push(Math.floor(Math.random() * 10) + 5);
+}
+
+new Chart(temporalCtx, {
+    type: 'line',
+    data: {
+        labels: fechas,
+        datasets: [{
+            label: 'Ofertas por día',
+            data: ofertasPorDia,
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
