@@ -302,9 +302,14 @@ def extraer_ofertas():
     if not mongo_connected:
         return jsonify({
             'success': False, 
-            'error': 'MongoDB no está disponible. Por favor, inicia MongoDB primero.',
-            'mensaje': 'Para extraer ofertas, MongoDB debe estar corriendo.'
-        }), 500
+            'error': 'MongoDB no está disponible',
+            'mensaje': 'MongoDB no está instalado o no está corriendo.\n\n' +
+                      'Para extraer ofertas necesitas instalar MongoDB.\n\n' +
+                      'Opciones:\n' +
+                      '1. Instalar MongoDB localmente (ver INSTALAR_MONGODB.md)\n' +
+                      '2. Usar MongoDB Atlas (gratis en la nube)\n\n' +
+                      'Sin MongoDB puedes usar la aplicación en modo lectura.'
+        }), 400
     
     try:
         import traceback
