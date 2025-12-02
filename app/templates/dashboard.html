@@ -123,7 +123,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5><i class="fas fa-list me-2"></i>Ofertas Recientes</h5>
-                <a href="{{ url_for('ofertas.listar_ofertas') }}" class="btn btn-outline-primary btn-sm">
+                <a href="{{ url_for('listar_ofertas') }}" class="btn btn-outline-primary btn-sm">
                     Ver Todas <i class="fas fa-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -257,19 +257,25 @@ function extraerOfertas() {
         }
         return response.json();
     })
+    .then(response => {
+        return response.json().catch(() => {
+            throw new Error('El servidor retornó una respuesta inválida. Verifica los logs del servidor.');
+        });
+    })
     .then(data => {
         modal.hide();
         if (data.success) {
             alert(`Extracción completada exitosamente:\n- Nuevas ofertas: ${data.nuevas_ofertas}\n- Actualizadas: ${data.actualizadas}\n- Errores: ${data.errores}\n- Total procesadas: ${data.total_procesadas}`);
             location.reload();
         } else {
-            alert('Error en la extracción: ' + (data.error || 'Error desconocido'));
+            const mensajeError = data.mensaje || data.error || 'Error desconocido';
+            alert('Error en la extracción:\n\n' + mensajeError + '\n\nDetalles: ' + (data.error || 'Sin detalles adicionales'));
         }
     })
     .catch(error => {
         modal.hide();
         console.error('Error en extracción:', error);
-        alert('Error en la extracción: ' + error.message + '\n\nPor favor, verifica que el servidor esté funcionando correctamente.');
+        alert('Error de conexión:\n\n' + error.message + '\n\nPor favor, verifica:\n1. Que MongoDB esté corriendo\n2. Los logs del servidor para más detalles');
     })
     .finally(() => {
         // Rehabilitar el botón
