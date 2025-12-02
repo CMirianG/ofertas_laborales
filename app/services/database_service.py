@@ -1,6 +1,5 @@
 """
 Gestor de base de datos MongoDB para el sistema de ofertas laborales
-Base de datos no relacional que reemplaza a SQL Server
 """
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
@@ -40,9 +39,18 @@ class MongoDBManager:
             # Crear índices para optimizar consultas
             self._create_indexes()
             
-        except ConnectionFailure as e:
+            self._connected = True
+            
+        except (ConnectionFailure, Exception) as e:
             self.logger.error(f"Error conectando a MongoDB: {e}")
-            raise
+            self.logger.warning("La aplicación continuará pero algunas funcionalidades no estarán disponibles")
+            self._connected = False
+            # Crear objetos None para evitar errores
+            self.client = None
+            self.db = None
+            self.ofertas_collection = None
+            self.usuarios_collection = None
+            self.logs_collection = None
     
     def _create_indexes(self):
         """Crea índices para optimizar las consultas"""
@@ -73,6 +81,16 @@ class MongoDBManager:
         except Exception as e:
             self.logger.error(f"Error creando índices: {e}")
     
+    def _check_connection(self) -> bool:
+        """Verifica si hay conexión a MongoDB"""
+        if not self._connected or not self.client:
+            return False
+        try:
+            self.client.admin.command('ping')
+            return True
+        except:
+            return False
+    
     def insert_oferta(self, oferta_data: Dict) -> bool:
         """
         Inserta o actualiza una oferta laboral
@@ -81,6 +99,10 @@ class MongoDBManager:
         Returns:
             True si se insertó/actualizó correctamente
         """
+        if not self._check_connection():
+            self.logger.warning("No hay conexión a MongoDB. No se puede insertar oferta.")
+            return False
+        
         try:
             # Añadir timestamps
             oferta_data['updated_at'] = datetime.now()
@@ -116,6 +138,9 @@ class MongoDBManager:
         Returns:
             Lista de ofertas
         """
+        if not self._check_connection():
+            return []
+        
         try:
             query = {}
             
@@ -164,6 +189,9 @@ class MongoDBManager:
         Returns:
             Diccionario con los datos de la oferta o None
         """
+        if not self._check_connection():
+            return None
+        
         try:
             oferta = self.ofertas_collection.find_one({'id': oferta_id})
             
@@ -189,6 +217,9 @@ class MongoDBManager:
         Returns:
             Número de ofertas
         """
+        if not self._check_connection():
+            return 0
+        
         try:
             query = {}
             
@@ -214,6 +245,15 @@ class MongoDBManager:
         Returns:
             Diccionario con estadísticas
         """
+        if not self._check_connection():
+            return {
+                'total_ofertas': 0,
+                'por_nivel': {},
+                'por_modalidad': {},
+                'por_fuente': {},
+                'top_empresas': {}
+            }
+        
         try:
             # Total de ofertas
             total_ofertas = self.ofertas_collection.count_documents({})
@@ -262,6 +302,9 @@ class MongoDBManager:
         Returns:
             True si se creó correctamente
         """
+        if not self._check_connection():
+            return False
+        
         try:
             user_data = {
                 'username': username,
@@ -290,6 +333,9 @@ class MongoDBManager:
         Returns:
             Diccionario con los datos del usuario o None
         """
+        if not self._check_connection():
+            return None
+        
         try:
             user = self.usuarios_collection.find_one({'username': username})
             

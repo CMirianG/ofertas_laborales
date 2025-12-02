@@ -16,12 +16,10 @@ lxml==4.9.3
 pymongo==4.6.1
 dnspython==2.4.2  # Para conexiones MongoDB Atlas
 
-# Base de Datos SQL (SQL Server - DEPRECADO, mantener para migración)
-pyodbc==4.0.39
-
 # Utilidades
 python-dotenv==1.0.0
 
-# Opcional: Para mejorar el scraping
-selenium==4.16.0  # Para sitios con JavaScript dinámico
-cloudscraper==1.2.71  # Para bypasear Cloudflare si es necesario
+# Opcional: Para mejorar el scraping (requieren compiladores C/C++)
+# selenium==4.16.0  # Para sitios con JavaScript dinámico
+# cloudscraper==1.2.71  # Para bypasear Cloudflare si es necesario
+# lxml==4.9.3  # Parser XML/HTML más rápido (requiere compiladores)

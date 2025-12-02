@@ -7,8 +7,8 @@
     <div class="col-12">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('ofertas') }}">Ofertas</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('ofertas.listar_ofertas') }}">Ofertas</a></li>
                 <li class="breadcrumb-item active">{{ oferta.titulo_oferta[:30] }}{% if oferta.titulo_oferta|length > 30 %}...{% endif %}</li>
             </ol>
         </nav>
