@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Informe de Prácticas Pre Profesionales - Sistema de Ofertas Laborales para Tacna</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 40px;
+      line-height: 1.5;
+      color: #222;
+    }
+    h1, h2, h3, h4 {
+      color: #15395b;
+    }
+    h1 {
+      border-bottom: 2px solid #15395b;
+      padding-bottom: 4px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+    table, th, td {
+      border: 1px solid #bbb;
+    }
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f5f8;
+    }
+    .small {
+      font-size: 0.9rem;
+    }
+    .graph-container {
+      margin: 18px 0;
+      padding: 12px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+    }
+    .graph-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+    }
+    .bar-label {
+      width: 240px;
+      font-size: 0.9rem;
+    }
+    .bar-track {
+      flex: 1;
+      background: #e5edf4;
+      border-radius: 3px;
+      overflow: hidden;
+      height: 12px;
+      margin: 0 8px;
+    }
+    .bar-fill {
+      height: 100%;
+      background: #3269a8;
+    }
+    .bar-value {
+      width: 50px;
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    .code-box {
+      background: #f7f7f7;
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 0.88rem;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .page-break {
+      page-break-before: always;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>INFORME DE PRÁCTICAS PRE PROFESIONALES</h1>
+  <h2>Sistema de Ofertas Laborales para Tacna</h2>
+
+  <h2>INTRODUCCIÓN</h2>
+  <p>
+    El presente informe describe la experiencia de Prácticas Pre Profesionales desarrollada en la 
+    Oficina de Responsabilidad Social Universitaria (RSU) de la Universidad Privada de Tacna (UPT), 
+    cuyo principal producto fue el diseño e implementación del <b>Sistema de Ofertas Laborales para Tacna</b>.
+  </p>
+  <p>
+    Este sistema web tiene como propósito centralizar, automatizar y facilitar la consulta de ofertas 
+    laborales dirigidas a estudiantes y egresados de la UPT, utilizando tecnologías modernas como 
+    <b>Flask</b>, <b>MongoDB</b> y <b>requests + BeautifulSoup</b> para web scraping. De esta manera, se 
+    reduce el trabajo manual que realizaba la Oficina de RSU al recopilar oportunidades de empleo en diversos 
+    portales, pasando de procesos de 2–3 horas diarias a tareas ejecutadas en pocos minutos.
+  </p>
+  <p>
+    El informe se estructura en cuatro capítulos: el primero presenta las generalidades del centro de 
+    prácticas; el segundo desarrolla el marco teórico y la arquitectura del sistema; el tercero detalla 
+    las actividades realizadas durante el período de prácticas; y el cuarto expone el aporte técnico-académico, 
+    los desafíos afrontados y el impacto en la formación profesional. Finalmente, se incluyen conclusiones 
+    y recomendaciones orientadas a la mejora continua del sistema y de los procesos institucionales.
+  </p>
+
+  <div class="page-break"></div>
+
+  <h1>CAPÍTULO I: GENERALIDADES DEL CENTRO DE PRÁCTICAS</h1>
+
+  <h2>1.1. CONTEXTO INSTITUCIONAL</h2>
+
+  <h3>1.1.1. Datos de la Empresa</h3>
+  <p>
+    El centro de prácticas fue la <b>Oficina de Responsabilidad Social Universitaria (RSU)</b> de la 
+    <b>Universidad Privada de Tacna (UPT)</b>, unidad encargada de articular las actividades académicas 
+    con el entorno social, promoviendo la empleabilidad, la vinculación con el sector productivo y el 
+    desarrollo de la comunidad tacneña.
+  </p>
+  <table>
+    <tr>
+      <th>Razón social</th>
+      <td>Universidad Privada de Tacna</td>
+    </tr>
+    <tr>
+      <th>Unidad de prácticas</th>
+      <td>Oficina de Responsabilidad Social Universitaria (RSU)</td>
+    </tr>
+    <tr>
+      <th>Ubicación</th>
+      <td>Tacna, Perú</td>
+    </tr>
+    <tr>
+      <th>Área de trabajo</th>
+      <td>Gestión de oportunidades laborales y vinculación con empleadores</td>
+    </tr>
+    <tr>
+      <th>Actividad principal</th>
+      <td>Gestión de programas y proyectos de responsabilidad social universitaria, incluyendo bolsa de trabajo y prácticas.</td>
+    </tr>
+  </table>
+
+  <h3>1.1.2. Misión de la Empresa</h3>
+  <p>
+    La misión de la Universidad Privada de Tacna, a través de la Oficina de RSU, es <b>formar profesionales 
+    íntegros, socialmente responsables y comprometidos con el desarrollo sostenible de la región</b>, 
+    facilitando su inserción en el mercado laboral mediante la articulación con instituciones públicas, 
+    privadas y organizaciones de la sociedad civil.
+  </p>
+
+  <h3>1.1.3. Visión de la Empresa</h3>
+  <p>
+    La visión de la Oficina de RSU es convertirse en un <b>referente regional en gestión de empleabilidad 
+    universitaria</b>, reconocida por sus soluciones tecnológicas innovadoras, la calidad de sus servicios 
+    y su contribución efectiva al desarrollo profesional de los estudiantes y egresados de la UPT.
+  </p>
+
+  <h2>1.2. MARCO OPERATIVO</h2>
+
+  <h3>1.2.1. Inicio de Prácticas Pre-Profesionales</h3>
+  <p>
+    Las prácticas pre-profesionales se iniciaron en coordinación con la Oficina de RSU, estableciéndose 
+    un plan de trabajo centrado en el análisis de los procesos existentes para la recopilación de ofertas 
+    laborales y el diseño de un sistema que automatice estas tareas, alineado con las necesidades operativas 
+    de la oficina y los lineamientos académicos de la carrera.
+  </p>
+
+  <h3>1.2.2. Término de Prácticas Pre-Profesionales</h3>
+  <p>
+    Al culminar el período de prácticas, se entregó un sistema funcional de ofertas laborales, acompañado 
+    de documentación técnica, manual de usuario y una propuesta de plan de mejora continua. El período 
+    comprendió todas las fases del ciclo de vida del software: análisis, diseño, desarrollo, pruebas e 
+    implementación inicial.
+  </p>
+
+  <h3>1.2.3. Lugar de Prácticas</h3>
+  <p>
+    Las actividades se llevaron a cabo de manera híbrida: de forma presencial en las instalaciones de la 
+    UPT y de forma remota utilizando herramientas de colaboración y control de versiones. Esta modalidad 
+    permitió una comunicación constante con la supervisora y el equipo de RSU, así como el despliegue y 
+    prueba del sistema en entornos controlados.
+  </p>
+
+  <h3>1.2.4. Supervisora</h3>
+  <p>
+    La supervisión de las prácticas estuvo a cargo de la responsable de la Oficina de RSU, quien acompañó 
+    la definición de requerimientos, la validación de prototipos y la verificación de que las funcionalidades 
+    del sistema respondan a las necesidades reales de la oficina y de la comunidad universitaria.
+  </p>
+
+  <div class="page-break"></div>
+
+  <h1>CAPÍTULO II: MARCO TEÓRICO Y ARQUITECTURA DEL SISTEMA</h1>
+
+  <h2>2.1. FUNDAMENTOS CONCEPTUALES</h2>
+  <p>
+    El Sistema de Ofertas Laborales para Tacna se apoya en varios conceptos clave de la ingeniería de software 
+    y de los sistemas de información:
+  </p>
+  <ul>
+    <li><b>Aplicaciones web basadas en microframeworks:</b> uso de <i>Flask</i> para construir aplicaciones ligeras, modulares y extensibles.</li>
+    <li><b>Bases de datos NoSQL:</b> uso de <i>MongoDB</i> para almacenar documentos flexibles, adecuados para datos semi-estructurados como ofertas laborales.</li>
+    <li><b>Web scraping:</b> técnica para extraer información estructurada desde páginas web utilizando librerías como <i>requests</i> y <i>BeautifulSoup</i>.</li>
+    <li><b>Patrones MVC y arquitectura por capas:</b> separación de responsabilidades en capas de presentación, lógica de negocio y acceso a datos.</li>
+    <li><b>Seguridad y autenticación:</b> uso de sesiones, hash de contraseñas y control de acceso para proteger la información del sistema.</li>
+  </ul>
+
+  <h2>2.2. ARQUITECTURA TÉCNICA</h2>
+
+  <h3>2.2.1. Stack Tecnológico Principal</h3>
+  <table>
+    <tr>
+      <th>Capa</th>
+      <th>Tecnología</th>
+      <th>Descripción</th>
+    </tr>
+    <tr>
+      <td>Backend web</td>
+      <td>Flask (Python)</td>
+      <td>Microframework para definir rutas, controladores, sesiones y manejo de peticiones HTTP.</td>
+    </tr>
+    <tr>
+      <td>Base de datos</td>
+      <td>MongoDB + PyMongo</td>
+      <td>Almacenamiento de ofertas laborales y usuarios en documentos flexibles.</td>
+    </tr>
+    <tr>
+      <td>Scraping</td>
+      <td>requests, BeautifulSoup</td>
+      <td>Extracción y parseo de ofertas desde múltiples portales web de empleo.</td>
+    </tr>
+    <tr>
+      <td>Configuración</td>
+      <td>python-dotenv, clase Config</td>
+      <td>Manejo de variables de entorno y parámetros del sistema (URIs, límites, timeouts, etc.).</td>
+    </tr>
+    <tr>
+      <td>Frontend</td>
+      <td>HTML5, CSS, JS, plantillas Jinja2</td>
+      <td>Interfaz para login, dashboard, listados y visualización de estadísticas.</td>
+    </tr>
+  </table>
+
+  <h3>2.2.2. Patrones Arquitectónicos Implementados</h3>
+  <p>
+    La solución adopta un enfoque de <b>MVC ligero</b> sobre Flask:
+  </p>
+  <ul>
+    <li><b>Modelo / Servicios:</b> encapsulados en <code>MongoDBManager</code> y <code>ScrapingService</code>, que gestionan acceso a datos y lógica de negocio.</li>
+    <li><b>Controladores:</b> agrupados en <code>auth.py</code>, <code>dashboard.py</code> y <code>ofertas.py</code> como blueprints, responsables del flujo de cada caso de uso.</li>
+    <li><b>Vistas:</b> plantillas HTML en <code>templates/</code>, conectadas a los controladores mediante renderización Jinja2.</li>
+  </ul>
+  <p>
+    Además, se utiliza una <b>arquitectura por capas</b>:
+  </p>
+  <ul>
+    <li>Capa de presentación (UI): plantillas y archivos estáticos.</li>
+    <li>Capa de aplicación (controladores): orquesta la lógica entre vistas y servicios.</li>
+    <li>Capa de servicios (negocio y datos): scraping y acceso a MongoDB.</li>
+    <li>Capa de configuración/utilidades: clase <code>Config</code> y módulos de <code>utils</code>.</li>
+  </ul>
+
+  <h2>2.3. DISEÑO DE COMPONENTES</h2>
+
+  <h3>2.3.1. Componente de Autenticación y Autorización</h3>
+  <p>
+    El componente de autenticación se implementa mediante un <b>blueprint de Flask</b> (<code>auth_bp</code>), 
+    que gestiona el inicio y cierre de sesión, así como la validación de credenciales utilizando contraseñas 
+    almacenadas mediante hash. Se utilizan sesiones de Flask para mantener el estado del usuario y un 
+    decorador <code>login_required</code> para proteger las rutas críticas como el dashboard y la gestión de ofertas.
+  </p>
+  <p>
+    Este componente incluye un <b>modo offline</b>: cuando la base de datos no está disponible, se habilita 
+    un usuario de emergencia (admin) que permite continuar utilizando el sistema con capacidades limitadas, 
+    lo que incrementa la resiliencia frente a fallos de infraestructura.
+  </p>
+
+  <h3>2.3.2. Componente de Extracción de Datos (Scraping)</h3>
+  <p>
+    El <b>servicio de scraping</b>, encapsulado en <code>ScrapingService</code>, concentra la lógica para conectarse 
+    a diferentes portales de empleo, descargar el HTML de las páginas, parsearlo con <i>BeautifulSoup</i> y 
+    transformar los resultados en estructuras normalizadas.
+  </p>
+  <p>
+    El componente está diseñado para:
+  </p>
+  <ul>
+    <li>Gestionar múltiples fuentes de datos mediante URLs configurables en la clase <code>Config.PORTALS</code>.</li>
+    <li>Aplicar filtros geográficos y semánticos (por ejemplo, ofertas en Tacna).</li>
+    <li>Evitar duplicados y actualizar ofertas existentes en la base de datos.</li>
+  </ul>
+
+  <h3>2.3.3. Componente de Gestión de Datos</h3>
+  <p>
+    El componente de gestión de datos está representado por <code>MongoDBManager</code>, responsable de:
+  </p>
+  <ul>
+    <li>Establecer y verificar la conexión a MongoDB.</li>
+    <li>Proveer métodos de alto nivel como <code>get_ofertas</code>, <code>get_oferta_by_id</code> y <code>get_estadisticas</code>.</li>
+    <li>Implementar agregaciones para estadísticas por fuente, nivel académico, modalidad y empresa.</li>
+  </ul>
+  <p>
+    Este diseño reduce el acoplamiento entre controladores y base de datos, facilitando futuras migraciones o 
+    cambios de tecnología de persistencia si fueran necesarios.
+  </p>
+
+  <h2>2.4. DIAGRAMA ARQUITECTÓNICO</h2>
+  <div class="code-box">
+Usuario / Navegador
+        │
+        ▼
+   [Flask App]
+        │
+ ┌──────┴────────────┐
+ │                   │
+ ▼                   ▼
+[Controladores]   [Plantillas]
+(auth, dashboard,   (HTML+Jinja2)
+ ofertas)
+        │
+        ▼
+   [Servicios]
+ (MongoDBManager,
+  ScrapingService)
+        │
+        ▼
+    [MongoDB]
+
+
+Flujo principal:
+1. Usuario inicia sesión → auth_bp valida credenciales.
+2. Usuario accede a /dashboard → dashboard_bp solicita datos a MongoDBManager.
+3. Usuario lista ofertas → ofertas_bp aplica filtros y paginación.
+4. Usuario lanza /extraer → ScrapingService obtiene nuevas ofertas y actualiza MongoDB.
+  </div>
+
+  <h2>2.5. METODOLOGÍA DE DESARROLLO</h2>
+
+  <h3>2.5.1. Fases de Desarrollo</h3>
+  <p>
+    El desarrollo del sistema siguió un enfoque <b>incremental e iterativo</b>, en el que se fueron 
+    liberando versiones funcionales parciales que posteriormente se refactorizaron y ampliaron.
+  </p>
+  <table>
+    <tr>
+      <th>Fase</th>
+      <th>Descripción</th>
+    </tr>
+    <tr>
+      <td>Levantamiento de requerimientos</td>
+      <td>Entrevistas con la Oficina de RSU, análisis de procesos actuales de recopilación de ofertas.</td>
+    </tr>
+    <tr>
+      <td>Análisis y diseño</td>
+      <td>Definición de arquitectura por capas, diseño de componentes y estructuras de datos.</td>
+    </tr>
+    <tr>
+      <td>Implementación inicial</td>
+      <td>Versión monolítica en <code>app.py</code> para validar rápidamente requisitos y flujo básico.</td>
+    </tr>
+    <tr>
+      <td>Refactorización modular</td>
+      <td>Creación de <code>controllers</code>, <code>services</code> y <code>config</code>, con separación clara de responsabilidades.</td>
+    </tr>
+    <tr>
+      <td>Pruebas e integración</td>
+      <td>Pruebas funcionales de rutas, scraping y estadísticas; corrección de errores.</td>
+    </tr>
+    <tr>
+      <td>Despliegue y documentación</td>
+      <td>Configuración de entorno, manuales de usuario y documentación técnica para la Oficina de RSU.</td>
+    </tr>
+  </table>
+
+  <div class="graph-container">
+    <div class="graph-title">Distribución estimada del esfuerzo por fase (%)</div>
+    <div class="bar-row">
+      <div class="bar-label">Análisis y diseño</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 20%;"></div></div>
+      <div class="bar-value">20%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Implementación backend y servicios</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 30%;"></div></div>
+      <div class="bar-value">30%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Scraping y tratamiento de datos</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 20%;"></div></div>
+      <div class="bar-value">20%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Frontend y UX</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 15%;"></div></div>
+      <div class="bar-value">15%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Pruebas e integración</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 15%;"></div></div>
+      <div class="bar-value">15%</div>
+    </div>
+  </div>
+
+  <h3>2.5.2. Principios Guía del Desarrollo</h3>
+  <ul>
+    <li><b>Simplicidad primero:</b> priorizar una versión funcional sencilla antes de optimizar o añadir complejidad.</li>
+    <li><b>Bajo acoplamiento y alta cohesión:</b> cada módulo tiene una responsabilidad clara y bien delimitada.</li>
+    <li><b>Reutilización:</b> componentes como <code>MongoDBManager</code> y <code>ScrapingService</code> son reutilizables para futuros proyectos.</li>
+    <li><b>Orientación a pruebas manuales frecuentes:</b> validación continua del scraping y las rutas web para evitar fallos silenciosos.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <h1>CAPÍTULO III: ACTIVIDADES DESARROLLADAS</h1>
+
+  <h2>3.1. ACTIVIDADES DE ANÁLISIS Y DISEÑO</h2>
+  <p>
+    En la fase inicial se analizaron los procesos de la Oficina de RSU relacionados con la búsqueda de 
+    ofertas laborales: fuentes de información, criterios de filtrado, frecuencia de actualización y formato 
+    de difusión a estudiantes. A partir de este análisis se elaboraron diagramas de flujo y un modelo de 
+    datos orientado a MongoDB.
+  </p>
+  <p>
+    Se diseñaron las vistas principales del sistema (login, dashboard, listado de ofertas, detalle de oferta 
+    y estadísticas), así como la interacción entre los controladores y los servicios de base de datos y scraping.
+  </p>
+
+  <h2>3.2. ACTIVIDADES DE DESARROLLO TÉCNICO</h2>
+
+  <h3>3.2.1. Configuración del Entorno de Desarrollo</h3>
+  <p>
+    Se configuró el entorno de desarrollo instalando Python, MongoDB y las dependencias listadas en 
+    <code>requirements.txt</code>. Se utilizaron entornos virtuales para aislar las librerías del proyecto 
+    y se empleó un repositorio Git para el control de versiones.
+  </p>
+
+  <h3>3.2.2. Implementación del Backend</h3>
+  <p>
+    El backend se implementó inicialmente en un archivo <code>app.py</code> con una versión monolítica, 
+    y posteriormente se modularizó en controladores y servicios. Se definieron rutas para:
+  </p>
+  <ul>
+    <li>Autenticación (login, logout).</li>
+    <li>Dashboard con últimas ofertas y estadísticas.</li>
+    <li>Listado paginado y filtrado de ofertas.</li>
+    <li>Visualización detallada de una oferta específica.</li>
+    <li>API interna para solicitudes AJAX y extracción de ofertas.</li>
+  </ul>
+
+  <h3>3.2.3. Desarrollo del Servicio de Scraping</h3>
+  <p>
+    Se desarrolló el servicio de scraping para conectarse a los portales definidos en <code>Config.PORTALS</code>, 
+    extrayendo información relevante como título, empresa, ubicación, nivel académico requerido y modalidad 
+    de trabajo. El servicio transforma la información HTML en documentos listos para ser almacenados en MongoDB.
+  </p>
+
+  <h3>3.2.4. Implementación del Frontend</h3>
+  <p>
+    Se implementaron las plantillas HTML con una interfaz limpia y centrada en la usabilidad: menú de navegación, 
+    formularios de login, tablas de ofertas con filtros y una sección de estadísticas gráficas. Se aplicó CSS 
+    personalizado y scripts JavaScript ligeros para manejar ciertas interacciones (por ejemplo, llamadas AJAX 
+    para la extracción de ofertas).
+  </p>
+
+  <div class="graph-container">
+    <div class="graph-title">Distribución de actividades técnicas</div>
+    <table class="small">
+      <tr>
+        <th>Actividad</th>
+        <th>Horas estimadas</th>
+      </tr>
+      <tr>
+        <td>Configuración del entorno</td>
+        <td>10</td>
+      </tr>
+      <tr>
+        <td>Implementación backend</td>
+        <td>40</td>
+      </tr>
+      <tr>
+        <td>Servicio de scraping</td>
+        <td>35</td>
+      </tr>
+      <tr>
+        <td>Frontend y plantillas</td>
+        <td>25</td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>3.3. ACTIVIDADES DE INTEGRACIÓN Y PRUEBAS</h2>
+
+  <h3>3.3.1. Pruebas de Componentes</h3>
+  <p>
+    Se realizaron pruebas unitarias manuales sobre funciones clave del scraping y de acceso a datos, 
+    verificando que cada componente cumpliera su responsabilidad de forma aislada: conexión a MongoDB, 
+    parseo de HTML y formateo de datos para la vista.
+  </p>
+
+  <h3>3.3.2. Pruebas de Integración</h3>
+  <p>
+    Posteriormente se validó el flujo completo desde el momento en que se lanza la extracción hasta la 
+    visualización de las nuevas ofertas en la interfaz. Se prestó especial atención a los casos de error, 
+    como la indisponibilidad temporal de un portal o de la base de datos.
+  </p>
+
+  <h3>3.3.3. Pruebas de Rendimiento</h3>
+  <p>
+    Aunque el sistema está orientado a un volumen moderado de datos, se realizaron pruebas de rendimiento 
+    básicas, observando el tiempo de respuesta de las páginas y el tiempo de ejecución del proceso de 
+    scraping con múltiples portales, para garantizar una experiencia de usuario fluida.
+  </p>
+
+  <h2>3.4. ACTIVIDADES DE IMPLEMENTACIÓN Y CAPACITACIÓN</h2>
+
+  <h3>3.4.1. Despliegue en Entorno de Producción</h3>
+  <p>
+    Se configuró un entorno de ejecución para el sistema, definiendo variables de entorno, el URI de MongoDB 
+    y parámetros de seguridad como la clave secreta de Flask. Se documentaron los pasos de despliegue para 
+    facilitar futuras actualizaciones.
+  </p>
+
+  <h3>3.4.2. Capacitación al Personal</h3>
+  <p>
+    Finalmente, se realizó una sesión de capacitación dirigida al personal de la Oficina de RSU, explicando 
+    el uso del sistema: ingreso al dashboard, filtros de búsqueda, interpretación de estadísticas y ejecución 
+    del proceso de extracción de nuevas ofertas.
+  </p>
+
+  <div class="page-break"></div>
+
+  <h1>CAPÍTULO IV: APORTE TÉCNICO-ACADÉMICO</h1>
+
+  <h2>4.1. INTEGRACIÓN DE CONOCIMIENTOS ACADÉMICOS</h2>
+
+  <h3>4.1.1. Aplicación de Principios de Ingeniería de Software</h3>
+  <p>
+    El proyecto permitió aplicar de manera directa principios de la ingeniería de software, tales como 
+    modularidad, reutilización, separación de responsabilidades, diseño por capas y manejo de configuración. 
+    Asimismo, se emplearon buenas prácticas de control de versiones y documentación.
+  </p>
+
+  <h3>4.1.2. Desarrollo de Competencias Técnicas Especializadas</h3>
+  <p>
+    Se consolidaron competencias en desarrollo web con Python y Flask, manejo de bases de datos NoSQL, 
+    técnicas de scraping y procesamiento de datos semi-estructurados. Estas competencias son altamente 
+    demandadas en el mercado laboral actual.
+  </p>
+
+  <h2>4.2. INNOVACIÓN TÉCNICA Y ADAPTACIÓN AL CONTEXTO</h2>
+
+  <h3>4.2.1. Diseño de una Arquitectura Híbrida</h3>
+  <p>
+    El sistema combina una versión monolítica simplificada con una arquitectura modular basada en blueprints 
+    y servicios, lo que facilita tanto la comprensión inicial del proyecto como su evolución futura hacia 
+    un sistema más escalable y mantenible.
+  </p>
+
+  <h3>4.2.2. Sistema de Configuración Dinámica</h3>
+  <p>
+    La clase <code>Config</code> centraliza parámetros clave (URIs de portales, límites de paginación, 
+    timeouts, etc.), permitiendo adaptar el comportamiento del sistema sin modificar el código fuente. 
+    Esto habilita la incorporación de nuevos portales y el ajuste de parámetros operativos de forma ágil.
+  </p>
+
+  <h2>4.3. DESAFÍOS TÉCNICOS SUPERADOS</h2>
+
+  <h3>4.3.1. Heterogeneidad de Fuentes de Datos</h3>
+  <p>
+    Cada portal de empleo presenta estructuras HTML distintas y criterios de búsqueda propios. El reto 
+    consistió en diseñar un scraping lo suficientemente flexible para adaptarse a estas diferencias, 
+    manteniendo un modelo de datos unificado en MongoDB.
+  </p>
+
+  <h3>4.3.2. Manejo de Datos Semi-estructurados</h3>
+  <p>
+    Las ofertas laborales no siempre contienen todos los campos de forma uniforme. Fue necesario diseñar 
+    estrategias para manejar valores faltantes, normalizar textos y garantizar que la información se 
+    presentara de forma clara al usuario final.
+  </p>
+
+  <h3>4.3.3. Balance entre Automatización y Calidad</h3>
+  <p>
+    Automatizar la extracción masiva de ofertas implica el riesgo de incluir información irrelevante o 
+    duplicada. Se implementaron filtros por ubicación (Tacna), palabras clave y verificaciones de duplicados 
+    para mantener un equilibrio entre volumen y calidad de las ofertas registradas.
+  </p>
+
+  <h2>4.4. IMPACTO EN LA FORMACIÓN PROFESIONAL</h2>
+
+  <h3>4.4.1. Desarrollo de Competencias de Gestión de Proyectos</h3>
+  <p>
+    La planificación de fases, la estimación de tiempos y la priorización de tareas fortalecieron las 
+    competencias en gestión de proyectos, alineadas con las buenas prácticas de la disciplina.
+  </p>
+
+  <h3>4.4.2. Comprensión de la Dimensión Social de la Tecnología</h3>
+  <p>
+    El proyecto evidenció el rol de la tecnología como herramienta para mejorar la empleabilidad y la 
+    vinculación universidad-sociedad, reforzando la comprensión de la dimensión social de los sistemas de 
+    información.
+  </p>
+
+  <h3>4.4.3. Integración de Ética y Responsabilidad Profesional</h3>
+  <p>
+    El manejo responsable de los datos, la transparencia en la forma en que se presentan las ofertas y la 
+    consideración de la accesibilidad para los usuarios son aspectos éticos que se integraron en el diseño 
+    y desarrollo del sistema.
+  </p>
+
+  <div class="page-break"></div>
+
+  <h1>CONCLUSIONES</h1>
+  <p>
+    El Sistema de Ofertas Laborales para Tacna constituye una solución tecnológica innovadora que optimiza 
+    significativamente los procesos de la Oficina de Responsabilidad Social Universitaria de la UPT. La 
+    arquitectura implementada demuestra que es posible desarrollar un sistema robusto y eficiente utilizando 
+    tecnologías modernas como Flask, MongoDB y BeautifulSoup.
+  </p>
+  <p>
+    Gracias a la automatización del proceso de búsqueda y registro de ofertas, se reduce de forma notable el 
+    tiempo de dedicación manual, se centraliza la información en una única base de datos y se ofrecen 
+    herramientas avanzadas de búsqueda y filtrado para la comunidad universitaria.
+  </p>
+  <p>
+    La experiencia de desarrollo permitió aplicar conocimientos académicos en un contexto real, demostrando 
+    la viabilidad técnica, económica y operativa del proyecto, y estableciendo una base sólida para futuras 
+    expansiones y mejoras del sistema.
+  </p>
+
+  <h1>RECOMENDACIONES</h1>
+
+  <h2>5.1. RECOMENDACIONES TÉCNICAS</h2>
+  <ul>
+    <li>Ampliar el número de portales de empleo integrados, incluyendo fuentes gubernamentales y sectoriales.</li>
+    <li>Implementar pruebas automatizadas para los componentes críticos de scraping y acceso a datos.</li>
+    <li>Desarrollar una API REST pública que permita la integración con otros sistemas universitarios.</li>
+  </ul>
+
+  <h2>5.2. RECOMENDACIONES OPERATIVAS</h2>
+  <ul>
+    <li>Establecer una rutina periódica de ejecución del scraping, coordinada con la Oficina de RSU.</li>
+    <li>Definir responsables para la supervisión de la calidad de las ofertas registradas.</li>
+    <li>Documentar los procedimientos de actualización del sistema y del entorno de ejecución.</li>
+  </ul>
+
+  <h2>5.3. RECOMENDACIONES INSTITUCIONALES</h2>
+  <ul>
+    <li>Integrar el sistema como herramienta oficial de la bolsa de trabajo de la UPT.</li>
+    <li>Promover la capacitación continua del personal de RSU en el uso y mantenimiento del sistema.</li>
+    <li>Incentivar proyectos similares que vinculen a estudiantes con necesidades tecnológicas reales de la institución.</li>
+  </ul>
+
+</body>
+</html>
+
+

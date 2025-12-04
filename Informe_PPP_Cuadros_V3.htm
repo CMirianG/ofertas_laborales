@@ -1,0 +1,517 @@
+<h1>CAPÍTULO II: MARCO TEÓRICO Y ARQUITECTURA DEL SISTEMA</h1>
+
+<h2>2.1. FUNDAMENTOS TEÓRICOS</h2>
+
+<h3>2.1.1. Aplicaciones Web y Arquitectura Cliente–Servidor</h3>
+<p>
+  El sistema de ofertas laborales se desarrolla como una <b>aplicación web</b> basada en la
+  <b>arquitectura cliente–servidor</b>, modelo ampliamente utilizado en sistemas de información modernos.
+  En este modelo, el <i>cliente</i> corresponde al navegador web del usuario, que se encarga de presentar
+  la interfaz gráfica, capturar las acciones del usuario y enviar solicitudes HTTP al servidor. El
+  <i>servidor</i>, por su parte, procesa dichas solicitudes, ejecuta la lógica de negocio, accede a los
+  datos almacenados y genera la respuesta que será visualizada en el cliente.
+</p>
+<p>
+  Esta separación lógica ofrece varias ventajas. En primer lugar, permite <b>centralizar la lógica y los
+  datos</b> en un único punto (el servidor), lo que simplifica las tareas de mantenimiento, seguridad y
+  actualización del sistema: cualquier mejora o corrección realizada en el servidor se refleja
+  inmediatamente para todos los usuarios, sin necesidad de instalar nada en sus equipos. En segundo lugar,
+  facilita la <b>escalabilidad</b>, ya que es posible ajustar los recursos del servidor (memoria, CPU,
+  conexiones a base de datos) para atender a un mayor número de usuarios concurrentes sin alterar los
+  clientes.
+</p>
+<p>
+  En el contexto de la Oficina de Responsabilidad Social Universitaria (RSU), esta arquitectura permite
+  que diversos actores —personal de RSU, docentes, estudiantes, egresados— accedan al sistema desde
+  distintos dispositivos (computadoras de escritorio, laptops, tablets) usando únicamente un navegador
+  web, mejorando la accesibilidad y reduciendo barreras tecnológicas para la adopción de la herramienta.
+</p>
+
+<h3>2.1.2. Arquitectura por Capas y Patrón Modelo–Vista–Controlador (MVC)</h3>
+<p>
+  Para gestionar la complejidad del sistema y facilitar su evolución, se adopta una <b>arquitectura por
+  capas</b> inspirada en el patrón <b>Modelo–Vista–Controlador (MVC)</b>. Este patrón propone dividir el
+  software en componentes con responsabilidades claramente diferenciadas, evitando que la lógica de
+  negocio se mezcle con la presentación o con los detalles de acceso a datos.
+</p>
+<p>
+  En el sistema de ofertas laborales, esta separación se materializa de la siguiente manera:
+</p>
+<ul>
+  <li>
+    <b>Capa de Modelo</b>: Representa los datos y las reglas de negocio asociadas. En este proyecto, está
+    implementada principalmente a través del servicio <code>MongoDBManager</code>, que define cómo se
+    almacenan y recuperan las ofertas laborales, los usuarios y las estadísticas en la base de datos
+    MongoDB. Esta capa concentra operaciones como consultas, inserciones, actualizaciones y agregaciones.
+  </li>
+  <li>
+    <b>Capa de Vista</b>: Corresponde a la presentación de la información al usuario. Se implementa mediante
+    plantillas HTML empleando el motor de plantillas Jinja2, que permite generar contenido dinámico a
+    partir de los datos suministrados por los controladores. En esta capa se cuida la organización de la
+    información (tablas, gráficos, formularios) y la usabilidad de la interfaz.
+  </li>
+  <li>
+    <b>Capa de Controlador</b>: Actúa como intermediaria entre la vista y el modelo. Está constituida por
+    los <i>blueprints</i> de Flask (<code>auth.py</code>, <code>dashboard.py</code>, <code>ofertas.py</code>),
+    que reciben las peticiones HTTP, validan datos de entrada, coordinan llamadas a los servicios de
+    negocio (scraping, acceso a datos) y deciden qué vista se debe renderizar.
+  </li>
+</ul>
+<p>
+  Esta estructura promueve la <b>alta cohesión interna</b> de cada módulo (cada uno hace pocas cosas, pero
+  bien definidas) y un <b>bajo acoplamiento</b> entre módulos (los cambios en una capa afectan mínimamente
+  a las otras). Como consecuencia, se facilita la incorporación de nuevas funcionalidades, la corrección de
+  errores y la futura incorporación de otros canales de acceso (por ejemplo, una API pública) sin
+  reescribir el sistema desde cero.
+</p>
+
+<h3>2.1.3. Desarrollo Web con Microframeworks: Flask</h3>
+<p>
+  <b>Flask</b> es un microframework para el desarrollo de aplicaciones web en Python que se caracteriza por
+  su filosofía de ser “ligero pero extensible”. A diferencia de frameworks más monolíticos, Flask ofrece
+  un conjunto básico de funcionalidades —gestión de peticiones y respuestas, sistema de rutas, manejo de
+  cookies y sesiones, integración con plantillas— y permite que el desarrollador seleccione de manera
+  explícita las extensiones adicionales que necesite (autenticación, formularios, ORM, etc.).
+</p>
+<p>
+  Esta cualidad se ajusta muy bien a las necesidades del Sistema de Ofertas Laborales para Tacna, ya que
+  se requiere una solución que sea al mismo tiempo <b>ágil de desarrollar</b> y <b>flexible para crecer</b>.
+  Con Flask es posible comenzar con una aplicación sencilla en un solo archivo (<code>app.py</code>) para
+  validar rápidamente ideas y luego ir evolucionando hacia una estructura modular usando <i>blueprints</i>
+  y paquetes separados para controladores, servicios y configuración.
+</p>
+<p>
+  Además, Flask se integra de forma natural con otras bibliotecas utilizadas en el proyecto, como
+  <code>PyMongo</code> (para la conexión con MongoDB), <code>Werkzeug</code> (para el manejo de seguridad
+  y hashing de contraseñas) y Jinja2 (para la generación de vistas). Esta integración reduce la fricción
+  técnica y permite centrar los esfuerzos en la lógica específica del dominio: la gestión de ofertas
+  laborales y la generación de estadísticas para la toma de decisiones en la Oficina de RSU.
+</p>
+
+<h3>2.1.4. Bases de Datos NoSQL y MongoDB</h3>
+<p>
+  El sistema emplea <b>MongoDB</b> como motor de base de datos, el cual pertenece a la categoría de bases
+  de datos <b>NoSQL</b> orientadas a documentos. A diferencia de los sistemas relacionales tradicionales,
+  donde los datos se organizan en tablas con esquemas rígidos, MongoDB almacena la información en
+  documentos con formato similar a JSON, agrupados en colecciones. Cada documento puede tener conjuntos de
+  campos ligeramente diferentes, lo que otorga una gran flexibilidad para manejar datos
+  <b>semi-estructurados</b>.
+</p>
+<p>
+  Esta característica resulta especialmente adecuada para el dominio de las ofertas laborales. Las
+  publicaciones obtenidas mediante web scraping pueden variar en la cantidad y el tipo de información
+  disponible: en algunos casos se incluye el rango salarial, en otros no; ciertos portales detallan el
+  tipo de jornada o el área funcional, mientras que otros solo proporcionan un título y una breve
+  descripción. Con MongoDB, el sistema puede almacenar todos estos casos sin necesidad de redefinir
+  constantemente el esquema de la base de datos.
+</p>
+<p>
+  Desde la perspectiva de rendimiento y análisis, MongoDB ofrece mecanismos de <b>indexación</b> y
+  <b>agregación</b> que permiten realizar búsquedas eficientes y generar estadísticas complejas (por fuente,
+  nivel académico, modalidad, empresa, etc.). En el sistema, estas capacidades se aprovechan mediante la
+  clase <code>MongoDBManager</code>, que encapsula las operaciones sobre la base de datos y expone métodos
+  específicos para las necesidades de la Oficina de RSU (por ejemplo, <code>get_ofertas</code> y
+  <code>get_estadisticas</code>).
+</p>
+
+<h3>2.1.5. Web Scraping como Mecanismo de Obtención de Datos</h3>
+<p>
+  El <b>web scraping</b> es una técnica que permite recolectar datos de sitios web de forma automatizada.
+  Conceptualmente, implica tres etapas principales: (1) realizar una petición HTTP al sitio de interés
+  para obtener el contenido HTML, (2) analizar la estructura del documento para localizar los elementos
+  que contienen la información relevante y (3) extraer y transformar esos datos en un formato estructurado
+  que pueda ser procesado o almacenado.
+</p>
+<p>
+  En el Sistema de Ofertas Laborales para Tacna, el web scraping es el <b>canal principal de alimentación de
+  datos</b>. Mediante las bibliotecas <code>requests</code> y <code>BeautifulSoup</code> se accede a
+  distintos portales de empleo orientados a la región, se identifica el listado de ofertas en cada página
+  y se extraen atributos como el título del puesto, la empresa, la ciudad, el nivel académico requerido,
+  la modalidad de trabajo y el enlace al detalle de la convocatoria.
+</p>
+<p>
+  Desde un punto de vista teórico, el uso de web scraping debe considerar elementos como:
+</p>
+<ul>
+  <li><b>Robustez frente a cambios en el HTML</b>: los portales pueden modificar su diseño, lo que exige que el scraper sea flexible y fácil de actualizar.</li>
+  <li><b>Respeto a los términos de uso</b>: es necesario revisar las políticas de cada sitio y configurar frecuencias de consulta razonables para no afectar su disponibilidad.</li>
+  <li><b>Calidad de datos</b>: los datos extraídos deben ser validados, limpiados y normalizados antes de ser incorporados al sistema.</li>
+</ul>
+<p>
+  Estos aspectos se abordan en el proyecto mediante funciones de parseo específicas por portal, filtros
+  por ubicación y palabras clave, y procedimientos para evitar la inserción de ofertas duplicadas.
+</p>
+
+<h3>2.1.6. Seguridad, Autenticación y Control de Acceso</h3>
+<p>
+  Todo sistema que maneja información relevante para la toma de decisiones requiere mecanismos básicos de
+  <b>seguridad y control de acceso</b>. En el caso del Sistema de Ofertas Laborales para Tacna, aunque no
+  se gestionan datos altamente sensibles como historiales clínicos o financieros, sí se trabaja con
+  información que incide en las oportunidades de empleo de los usuarios y en la reputación institucional
+  de la UPT. Por ello, es importante garantizar que solo el personal autorizado pueda administrar el
+  sistema y ejecutar procesos críticos, como la extracción de nuevas ofertas.
+</p>
+<p>
+  Teóricamente, la autenticación se define como el proceso de <b>verificar la identidad</b> de un usuario,
+  mientras que la autorización se refiere a <b>determinar qué acciones puede realizar</b> una vez
+  autenticado. En el sistema, la autenticación se implementa mediante un formulario de inicio de sesión que
+  compara las credenciales ingresadas con los registros almacenados en MongoDB. Las contraseñas no se
+  guardan en texto plano, sino que se protegen mediante funciones de <i>hashing</i> provistas por la
+  librería <code>Werkzeug</code>, reduciendo el riesgo ante accesos no autorizados a la base de datos.
+</p>
+<p>
+  La autorización se materializa a través del decorador <code>login_required</code>, que actúa como una
+  barrera lógica: si una petición se dirige a una ruta protegida y no existe un usuario autenticado en la
+  sesión, el sistema redirige automáticamente al formulario de login y muestra un mensaje de advertencia.
+  De este modo, se evita que usuarios anónimos accedan al dashboard, a las estadísticas o a los procesos de
+  scraping.
+</p>
+
+<h3>2.1.7. Responsabilidad Social Universitaria y Empleabilidad</h3>
+<p>
+  Desde el ámbito institucional, el proyecto se sustenta en el concepto de <b>Responsabilidad Social
+  Universitaria (RSU)</b>, entendido como el compromiso de la universidad con su entorno social y con la
+  formación integral de sus estudiantes. La RSU no se limita a actividades de extensión o voluntariado,
+  sino que abarca la manera en que la institución contribuye al desarrollo humano, económico y cultural de
+  la comunidad en la que está inserta.
+</p>
+<p>
+  Una de las dimensiones centrales de la RSU es la <b>empleabilidad</b>, es decir, la capacidad de los
+  estudiantes y egresados para acceder a un empleo pertinente, digno y acorde con su formación. En este
+  sentido, proveer herramientas que faciliten el acceso a oportunidades laborales constituye una estrategia
+  concreta para materializar la responsabilidad social de la universidad.
+</p>
+<p>
+  El Sistema de Ofertas Laborales para Tacna se inscribe en esta lógica al <b>centralizar y organizar</b>
+  la información sobre ofertas de trabajo disponibles en la región, haciéndola accesible de manera
+  oportuna y amigable para la comunidad universitaria. De esta manera, el sistema no solo es un producto
+  tecnológico, sino también un instrumento que refuerza la misión de la UPT de aportar al desarrollo de
+  Tacna mediante la formación y la inserción laboral de sus profesionales.
+</p>
+
+<h2>2.2. DOCUMENTO SRS (Software Requirements Specification)</h2>
+<p>
+  El <b>Documento SRS</b> (Software Requirements Specification) es un artefacto fundamental en los procesos
+  de ingeniería de software, ya que recoge de manera estructurada y detallada los <b>requerimientos del
+  sistema</b>. Su propósito es servir como contrato técnico entre los interesados (stakeholders) y el equipo
+  de desarrollo, evitando ambigüedades y malentendidos respecto a lo que el sistema debe hacer.
+</p>
+<p>
+  En el caso del Sistema de Ofertas Laborales para Tacna, el SRS consolida las necesidades identificadas en
+  la Oficina de RSU: automatizar la recolección de ofertas desde portales externos, centralizar la
+  información en una base de datos, permitir la búsqueda y el filtrado según criterios relevantes
+  (empresa, nivel académico, modalidad, palabras clave) y generar estadísticas que apoyen la toma de
+  decisiones. Además, el SRS documenta restricciones y supuestos, como la dependencia de la conectividad a
+  Internet y la disponibilidad del servicio de MongoDB.
+</p>
+
+<h2>2.3. REQUERIMIENTOS FUNCIONALES</h2>
+<p>
+  Los <b>requerimientos funcionales</b> describen los servicios y comportamientos observables que el sistema
+  debe proporcionar desde la perspectiva del usuario. Responden a la pregunta “¿qué debe hacer el sistema?”.
+  En el Sistema de Ofertas Laborales para Tacna, entre los requerimientos funcionales principales se
+  encuentran:
+</p>
+<ul>
+  <li>Permitir el inicio y cierre de sesión de usuarios autorizados (personal de RSU).</li>
+  <li>Mostrar un <b>dashboard</b> con las últimas ofertas registradas y estadísticas generales.</li>
+  <li>Listar las ofertas laborales almacenadas aplicando filtros por texto libre, empresa, nivel académico y modalidad.</li>
+  <li>Visualizar el detalle completo de una oferta específica.</li>
+  <li>Ejecutar el proceso de <b>extracción (scraping)</b> desde los portales de empleo configurados.</li>
+  <li>Generar estadísticas agregadas por fuente, nivel académico, modalidad y empresa.</li>
+</ul>
+<p>
+  Estos requerimientos funcionales fueron priorizados y refinados en el SRS, sirviendo de base para el
+  diseño de los casos de uso, los diagramas de procesos y el plan de pruebas del sistema.
+</p>
+
+<h2>2.4. REQUERIMIENTOS NO FUNCIONALES</h2>
+<p>
+  Los <b>requerimientos no funcionales</b> especifican criterios de calidad y restricciones bajo las cuales
+  el sistema debe operar. No describen funcionalidades específicas, sino propiedades tales como rendimiento,
+  seguridad, usabilidad y mantenibilidad. En el contexto del sistema desarrollado, destacan los siguientes:
+</p>
+<ul>
+  <li><b>Rendimiento:</b> el sistema debe responder a las peticiones de listado y detalle de ofertas en tiempos aceptables para el usuario (segundos).</li>
+  <li><b>Disponibilidad:</b> la aplicación debe estar disponible durante el horario laboral de la Oficina de RSU, minimizando tiempos de inactividad.</li>
+  <li><b>Seguridad:</b> las contraseñas se almacenan mediante hashing y las rutas críticas están protegidas por autenticación.</li>
+  <li><b>Usabilidad:</b> la interfaz debe ser clara, intuitiva y consistente, dirigida a usuarios no técnicos del ámbito administrativo.</li>
+  <li><b>Mantenibilidad:</b> la arquitectura por capas y el uso de servicios separados deben facilitar la incorporación de nuevas fuentes de empleo o criterios de filtrado.</li>
+</ul>
+<p>
+  Estos requerimientos no funcionales orientan decisiones de diseño (por ejemplo, elección de tecnologías,
+  estructuras de datos y patrones arquitectónicos) y sirven como referencia al evaluar la calidad del
+  sistema desarrollado.
+</p>
+
+<h2>2.5. DOCUMENTO SAD (Software Architecture Document)</h2>
+<p>
+  El <b>Documento SAD</b> (Software Architecture Document) describe la arquitectura del sistema desde una
+  perspectiva de alto nivel, identificando sus componentes principales, las relaciones entre ellos y las
+  decisiones de diseño más relevantes. Su función es proporcionar una visión global que permita entender
+  cómo está organizado el sistema y por qué se tomaron determinadas decisiones arquitectónicas.
+</p>
+<p>
+  Para el Sistema de Ofertas Laborales para Tacna, el SAD recoge la adopción de una arquitectura por capas
+  con separación entre presentación, lógica de aplicación, servicios de negocio y acceso a datos, así como
+  el uso de Flask como microframework web, MongoDB como base de datos NoSQL y componentes especializados
+  para scraping y estadísticas. También documenta aspectos transversales como el manejo de errores, el
+  registro de eventos (logging) y el tratamiento de la configuración mediante variables de entorno.
+</p>
+
+<h2>2.6. ARQUITECTURA DE SOFTWARE</h2>
+<p>
+  La <b>arquitectura de software</b> del sistema se concibe como la estructura organizativa que define los
+  componentes, sus responsabilidades y las interacciones entre ellos. Una buena arquitectura facilita el
+  cumplimiento de los requerimientos funcionales y no funcionales, y sienta las bases para la evolución del
+  sistema en el tiempo.
+</p>
+<p>
+  En este proyecto, la arquitectura se articula en torno a tres grandes bloques:
+</p>
+<ul>
+  <li><b>Interfaz de usuario (presentación):</b> plantillas HTML, CSS y JavaScript que conforman las vistas de login, dashboard, listado de ofertas, detalle y estadísticas.</li>
+  <li><b>Lógica de aplicación (controladores):</b> blueprints de Flask que implementan los casos de uso, gestionan las sesiones y coordinan la comunicación con los servicios.</li>
+  <li><b>Servicios de negocio y datos:</b> clases como <code>MongoDBManager</code> y <code>ScrapingService</code> que encapsulan el acceso a MongoDB y la obtención de datos externos, respectivamente.</li>
+</ul>
+<p>
+  Esta organización responde a criterios de modularidad, reutilización y bajo acoplamiento, alineados con
+  las recomendaciones de marcos de trabajo como el Proceso Unificado (RUP) y las buenas prácticas de
+  ingeniería de software.
+</p>
+
+<h2>2.7. DIAGRAMA DE COMPONENTES</h2>
+<p>
+  El <b>diagrama de componentes</b> es un artefacto UML que representa los módulos lógicos o físicos del
+  sistema y las dependencias entre ellos. En el caso del Sistema de Ofertas Laborales para Tacna, este
+  diagrama identifica componentes como:
+</p>
+<ul>
+  <li>Componente de autenticación (<code>auth_bp</code>).</li>
+  <li>Componente de dashboard y estadísticas (<code>dashboard_bp</code>).</li>
+  <li>Componente de gestión de ofertas (<code>ofertas_bp</code>).</li>
+  <li>Servicio de base de datos (<code>MongoDBManager</code>).</li>
+  <li>Servicio de scraping (<code>ScrapingService</code>).</li>
+  <li>Componente de configuración (<code>Config</code>).</li>
+</ul>
+<p>
+  Representar estos elementos en un diagrama permite visualizar de forma sintética cómo se distribuye la
+  responsabilidad en el sistema y qué componentes se comunican entre sí, facilitando el razonamiento
+  sobre el impacto de cambios futuros.
+</p>
+
+<h2>2.8. DIAGRAMA DE CASOS DE USO</h2>
+<p>
+  El <b>diagrama de casos de uso</b> es una herramienta de modelado que muestra las interacciones entre los
+  actores externos (usuarios) y el sistema, a través de los servicios que éste ofrece. Para el Sistema de
+  Ofertas Laborales para Tacna, los actores principales son el <b>usuario administrador</b> (personal de RSU)
+  y, potencialmente, otros perfiles que puedan definirse a futuro.
+</p>
+<p>
+  Entre los casos de uso modelados se encuentran: “Iniciar sesión”, “Visualizar dashboard”, “Listar ofertas”,
+  “Filtrar ofertas”, “Ver detalle de oferta”, “Ejecutar extracción de ofertas” y “Consultar estadísticas”.
+  Este diagrama ayuda a asegurar que todos los requerimientos funcionales relevantes se consideren en el
+  diseño y el desarrollo, y proporciona una vista de alto nivel comprensible tanto para usuarios técnicos
+  como no técnicos.
+</p>
+
+<h2>2.9. DIAGRAMA DE PROCESOS Y EDT</h2>
+<p>
+  El <b>diagrama de procesos</b> describe, mediante notaciones como BPMN o diagramas de actividades, el flujo
+  de trabajo asociado a cada caso de uso o conjunto de casos de uso. En el contexto del sistema, estos
+  diagramas representan, por ejemplo, la secuencia desde que el usuario inicia sesión hasta que visualiza
+  las ofertas actualizadas, o el flujo completo de la ejecución del scraping y la actualización de la base
+  de datos.
+</p>
+<p>
+  Complementariamente, la <b>EDT (Estructura de Desglose de Trabajo)</b> es una herramienta de gestión de
+  proyectos que descompone el trabajo total del proyecto en paquetes manejables. Para el Sistema de Ofertas
+  Laborales para Tacna, la EDT agrupa actividades como análisis de requerimientos, diseño de arquitectura,
+  desarrollo de backend, implementación del servicio de scraping, construcción del frontend, pruebas,
+  despliegue y capacitación. Esta descomposición facilita la planificación, el seguimiento y el control del
+  avance del proyecto.
+</p>
+
+<h2>2.10. METODOLOGÍA DE DESARROLLO INCREMENTAL E ITERATIVA</h2>
+<p>
+  La metodología de trabajo empleada en el proyecto se basa en un enfoque <b>incremental e iterativo con
+  prototipos evolutivos</b>. En lugar de intentar definir y construir todo el sistema desde el inicio, se
+  optó por desarrollar versiones parciales pero funcionales que fueron refinadas y ampliadas en ciclos
+  sucesivos, incorporando de manera progresiva nuevas funcionalidades y mejoras de calidad.
+</p>
+<p>
+  En una primera iteración se construyó una versión <b>simplificada y monolítica</b> del sistema en
+  <code>app.py</code>, que permitía validar rápidamente el flujo básico de autenticación, visualización de
+  ofertas y navegación entre vistas. A partir de esta base se llevaron a cabo nuevas iteraciones en las que
+  se refactorizó la arquitectura hacia una estructura por capas (controladores, servicios, configuración),
+  se incorporó el servicio de scraping, se enriquecieron los filtros de búsqueda y se añadieron estadísticas
+  de apoyo a la toma de decisiones.
+</p>
+<p>
+  Cada iteración incluyó actividades de <b>análisis</b> (revisión de necesidades y feedback de la Oficina de
+  RSU), <b>diseño</b> (ajustes en la arquitectura y en los modelos de datos), <b>implementación</b> (código
+  de backend, frontend y servicios) y <b>pruebas</b> (verificación de casos de uso clave). Este ciclo
+  repetitivo permitió detectar y corregir problemas de forma temprana, adaptar el alcance del proyecto a
+  los tiempos de las prácticas pre-profesionales y asegurar que el sistema evolucionara alineado con las
+  prioridades reales de la Oficina de Responsabilidad Social Universitaria.
+</p>
+
+<h1>CAPÍTULO IV: APORTE TÉCNICO – ACADÉMICO</h1>
+
+<h2>4.1. METODOLOGÍA DE DESARROLLO INCREMENTAL E ITERATIVA</h2>
+<p>
+  El aporte técnico–académico del proyecto se enmarca en la aplicación de una <b>metodología de desarrollo
+  incremental e iterativa</b>, basada en la construcción de prototipos evolutivos. Este enfoque permitió
+  responder de manera flexible a las necesidades de la Oficina de Responsabilidad Social Universitaria
+  (RSU), integrando de forma progresiva nuevos requisitos y mejoras arquitectónicas sin perder de vista la
+  viabilidad del proyecto en el contexto de las prácticas pre-profesionales.
+</p>
+
+<h3>4.1.1. Inicio del Proceso de Desarrollo</h3>
+
+<h4>4.1.1.1. Problemática</h4>
+<p>
+  La problemática inicial identificada en la Oficina de RSU se relacionaba con la <b>gestión manual y
+  dispersa de las ofertas laborales</b>. El personal debía visitar diversos portales de empleo, filtrar
+  visualmente las oportunidades relevantes para Tacna, copiar la información a hojas de cálculo y luego
+  difundirla por canales internos. Este proceso consumía entre 2 y 3 horas diarias, era propenso a errores,
+  dificultaba el seguimiento histórico de las ofertas y no permitía obtener estadísticas confiables sobre
+  el mercado laboral regional.
+</p>
+
+<h4>4.1.1.2. Formulación del Problema</h4>
+<p>
+  A partir de la situación descrita, el problema se puede formular de la siguiente manera:
+</p>
+<p>
+  <i>
+  ¿Cómo diseñar e implementar un sistema de información que permita automatizar la recolección, el
+  almacenamiento, la búsqueda y el análisis de ofertas laborales para la región de Tacna, reduciendo el
+  tiempo de trabajo manual de la Oficina de RSU y mejorando la calidad y oportunidad de la información
+  disponible para la comunidad universitaria de la UPT?
+  </i>
+</p>
+
+<h4>4.1.1.3. Justificación e Importancia</h4>
+<p>
+  La justificación del proyecto se sustenta en tres dimensiones principales:
+</p>
+<ul>
+  <li>
+    <b>Operativa:</b> al automatizar la búsqueda y el registro de ofertas, se reduce el esfuerzo manual del
+    personal de RSU y se liberan horas que pueden destinarse a actividades de mayor valor añadido, como el
+    acompañamiento personalizado a estudiantes y egresados.
+  </li>
+  <li>
+    <b>Estratégica:</b> contar con un sistema que centralice y organice las ofertas laborales fortalece la
+    capacidad de la universidad para articularse con el entorno productivo y posicionarse como un actor
+    relevante en la empleabilidad regional.
+  </li>
+  <li>
+    <b>Académica y social:</b> la herramienta contribuye directa y concretamente a la <b>Responsabilidad
+    Social Universitaria</b>, al facilitar el acceso a oportunidades laborales y apoyar la inserción de los
+    profesionales formados por la UPT en el mercado de trabajo.
+  </li>
+</ul>
+
+<h4>4.1.1.4. Objetivos</h4>
+<p>
+  En coherencia con la problemática y la justificación, se establecieron los siguientes objetivos:
+</p>
+<p><b>Objetivo general</b></p>
+<p>
+  Diseñar e implementar un <b>Sistema de Ofertas Laborales para Tacna</b>, basado en una metodología de
+  desarrollo incremental e iterativa, que automatice la recolección, la gestión y el análisis de ofertas
+  laborales para la comunidad universitaria de la UPT.
+</p>
+<p><b>Objetivos específicos</b></p>
+<ul>
+  <li>Analizar los procesos actuales de la Oficina de RSU relacionados con la gestión de ofertas laborales.</li>
+  <li>Definir y documentar los requerimientos funcionales y no funcionales del sistema.</li>
+  <li>Diseñar una arquitectura por capas que separe presentación, lógica de aplicación y servicios de datos.</li>
+  <li>Implementar un módulo de scraping que extraiga ofertas desde portales de empleo relevantes para Tacna.</li>
+  <li>Desarrollar una interfaz web que permita buscar, filtrar y visualizar ofertas y estadísticas asociadas.</li>
+  <li>Validar el sistema mediante pruebas y obtener retroalimentación del personal de la Oficina de RSU.</li>
+</ul>
+
+<h4>4.1.1.5. Solución Propuesta</h4>
+<p>
+  La solución propuesta consiste en una aplicación web construida sobre el microframework <b>Flask</b>,
+  utilizando <b>MongoDB</b> como base de datos NoSQL para almacenar las ofertas laborales y los usuarios, y
+  un servicio de <b>web scraping</b> basado en <code>requests</code> y <code>BeautifulSoup</code> para la
+  recolección automática de oportunidades desde distintos portales de empleo. La aplicación se estructura
+  en capas y componentes bien definidos, lo que facilita su mantenimiento y ampliación.
+</p>
+<p>
+  Desde el punto de vista metodológico, la solución se fue construyendo en incrementos: primero una versión
+  mínima funcional centrada en el login y el listado de ofertas, luego la incorporación del scraping y
+  finalmente la adición de estadísticas y mejoras en la experiencia de usuario. Cada incremento fue
+  evaluado junto con la supervisora de la Oficina de RSU, lo que aseguró la alineación constante con las
+  necesidades institucionales.
+</p>
+
+<h4>4.1.1.6. Factibilidad</h4>
+<p>
+  La factibilidad del proyecto se analizó en tres dimensiones:
+</p>
+<ul>
+  <li>
+    <b>Factibilidad técnica:</b> las tecnologías seleccionadas (Python, Flask, MongoDB, requests,
+    BeautifulSoup) son de uso extendido, cuentan con abundante documentación y pueden ejecutarse en la
+    infraestructura disponible en la universidad (equipos de desarrollo y servidores locales o en la nube).
+  </li>
+  <li>
+    <b>Factibilidad económica:</b> todas las herramientas empleadas son de código abierto o disponen de
+    versiones gratuitas suficientemente potentes para las necesidades del proyecto, por lo que no se
+    requieren inversiones adicionales en licencias de software.
+  </li>
+  <li>
+    <b>Factibilidad operativa:</b> el personal de la Oficina de RSU puede utilizar el sistema mediante una
+    interfaz web sencilla, y la capacitación requerida es moderada. Además, el mantenimiento básico (ejecución
+    del scraping, revisión de ofertas, actualización de parámetros) puede ser asumido por el equipo de RSU
+    con el apoyo puntual de personal técnico de la universidad.
+  </li>
+</ul>
+
+<h3>4.1.2. Iteraciones de Diseño y Arquitectura</h3>
+
+<h4>4.1.2.1. Elaboración del Documento SRS</h4>
+<p>
+  En la primera serie de iteraciones se elaboró el <b>Documento SRS</b>, que recoge de manera estructurada
+  los requerimientos funcionales y no funcionales del sistema. Este documento se construyó progresivamente:
+  partiendo de una versión inicial basada en entrevistas con la supervisora de RSU y refinándola a medida
+  que se iban validando prototipos y descubriendo nuevas necesidades o restricciones.
+</p>
+<p>
+  El enfoque incremental permitió que el SRS no fuera un artefacto estático, sino un documento vivo que se
+  fue ajustando conforme se obtenía experiencia con el sistema, manteniendo siempre una traza clara entre
+  los requisitos establecidos y las funcionalidades implementadas.
+</p>
+
+<h4>4.1.2.2. Elaboración del Documento SAD</h4>
+<p>
+  Paralelamente, se elaboró el <b>Documento SAD</b>, que describe la arquitectura de software adoptada. En
+  las primeras iteraciones, el SAD se centró en documentar la versión monolítica inicial y las decisiones
+  relacionadas con la selección de tecnologías. En iteraciones posteriores, se fue enriqueciendo con la
+  descripción de la arquitectura por capas, los componentes (controladores, servicios, utilidades) y los
+  patrones utilizados (MVC ligero, separación de responsabilidades).
+</p>
+<p>
+  De esta forma, el SAD refleja la evolución arquitectónica del sistema y sirve como referencia para
+  comprender cómo los distintos módulos colaboran para cumplir los objetivos definidos en el SRS.
+</p>
+
+<h3>4.1.3. Construcción Incremental del Sistema</h3>
+<p>
+  La fase de construcción no se abordó como un bloque único, sino como una sucesión de <b>incrementos</b>
+  funcionales. Cada incremento tenía un objetivo claro (por ejemplo, “implementar autenticación básica”,
+  “agregar scraping de un portal”, “incorporar estadísticas por fuente”) y culminaba con una versión
+  ejecutable del sistema que podía ser demostrada y validada.
+</p>
+<p>
+  Este modo de trabajo permitió integrar tempranamente los distintos componentes (backend, scraping,
+  base de datos y frontend), identificar problemas de integración y usabilidad y corregirlos antes de
+  avanzar hacia funcionalidades más complejas. Desde la perspectiva académica, la construcción incremental
+  reforzó la comprensión de la relación entre diseño, implementación y pruebas, y evidenció la importancia
+  de recibir retroalimentación continua de los usuarios finales para lograr un sistema útil y sostenible.
+</p>
