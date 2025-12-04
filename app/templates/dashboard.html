@@ -89,7 +89,7 @@
                 <h5><i class="fas fa-chart-pie me-2"></i>Ofertas por Fuente</h5>
             </div>
             <div class="card-body">
-                <canvas id="fuentesChart" width="400" height="200"></canvas>
+                <canvas id="fuentesChart" width="400" height="200" data-fuentes='{% if fuentes %}{{ fuentes | tojson | safe }}{% else %}{}{% endif %}'></canvas>
             </div>
         </div>
     </div>
@@ -210,29 +210,54 @@
 {% block scripts %}
 <script>
 // Gráfico de fuentes
-const fuentesData = {{ fuentes | tojson }};
-const ctx = document.getElementById('fuentesChart').getContext('2d');
-new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(fuentesData),
-        datasets: [{
-            data: Object.values(fuentesData),
-            backgroundColor: [
-                '#007bff',
-                '#28a745',
-                '#ffc107',
-                '#dc3545',
-                '#6f42c1',
-                '#20c997'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
+(function() {
+    try {
+        var ctx = document.getElementById('fuentesChart');
+        if (!ctx) return;
+        
+        // Obtener datos del atributo data-fuentes
+        var fuentesDataStr = ctx.getAttribute('data-fuentes') || '{}';
+        var fuentesData = {};
+        try {
+            fuentesData = JSON.parse(fuentesDataStr);
+        } catch(e) {
+            console.error('Error parseando datos de fuentes:', e);
+            fuentesData = {};
+        }
+        if (ctx && fuentesData && Object.keys(fuentesData).length > 0) {
+            var chartCtx = ctx.getContext('2d');
+            var labels = Object.keys(fuentesData);
+            var values = Object.values(fuentesData);
+            
+            new Chart(chartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#007bff',
+                            '#28a745',
+                            '#ffc107',
+                            '#dc3545',
+                            '#6f42c1',
+                            '#20c997'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else if (ctx) {
+            // Mostrar mensaje si no hay datos
+            ctx.parentElement.innerHTML = '<p class="text-muted text-center py-4">No hay datos de fuentes disponibles</p>';
+        }
+    } catch (error) {
+        console.error('Error al crear el gráfico de fuentes:', error);
     }
-});
+})();
 
 // Función para extraer ofertas
 function extraerOfertas() {
@@ -243,24 +268,37 @@ function extraerOfertas() {
     const btn = document.querySelector('button[onclick="extraerOfertas()"]');
     if (btn) btn.disabled = true;
     
+    // Crear un AbortController para manejar timeouts
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutos
+    
     fetch('/extraer', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({}),
+        signal: controller.signal
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    .then(async response => {
+        // Intentar parsear la respuesta como JSON (tanto para éxito como error)
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            // Si no es JSON, leer como texto
+            const text = await response.text();
+            throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
         }
-        return response.json();
-    })
-    .then(response => {
-        return response.json().catch(() => {
-            throw new Error('El servidor retornó una respuesta inválida. Verifica los logs del servidor.');
-        });
+        
+        // Si la respuesta no es OK, lanzar error con el mensaje del servidor
+        if (!response.ok) {
+            throw new Error(data.mensaje || data.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        // Retornar los datos parseados
+        return data;
     })
     .then(data => {
         modal.hide();
@@ -275,9 +313,19 @@ function extraerOfertas() {
     .catch(error => {
         modal.hide();
         console.error('Error en extracción:', error);
-        alert('Error de conexión:\n\n' + error.message + '\n\nPor favor, verifica:\n1. Que MongoDB esté corriendo\n2. Los logs del servidor para más detalles');
+        let errorMessage = error.message || 'Error desconocido';
+        
+        // Manejar diferentes tipos de errores
+        if (error.name === 'AbortError') {
+            errorMessage = 'La operación tardó demasiado tiempo. El proceso puede estar ejecutándose en el servidor. Verifica los logs.';
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION')) {
+            errorMessage = 'Error de conexión con el servidor. El servidor puede haberse detenido o estar procesando la solicitud.';
+        }
+        
+        alert('Error de conexión:\n\n' + errorMessage + '\n\nPor favor, verifica:\n1. Que MongoDB esté corriendo\n2. Los logs del servidor para más detalles\n3. Que el servidor Flask esté activo');
     })
     .finally(() => {
+        clearTimeout(timeoutId);
         // Rehabilitar el botón
         if (btn) btn.disabled = false;
     });

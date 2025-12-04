@@ -114,7 +114,7 @@ def login():
         
         # Modo normal
         ofertas_coll, usuarios_coll = get_collections()
-        if usuarios_coll:
+        if usuarios_coll is not None:
             user = usuarios_coll.find_one({'username': username})
             if user and check_password_hash(user['password_hash'], password):
                 session['user_id'] = str(user['_id'])
@@ -141,7 +141,7 @@ def dashboard():
     """Dashboard principal"""
     ofertas_coll, _ = get_collections()
     
-    if not ofertas_coll:
+    if ofertas_coll is None:
         return render_template('dashboard.html', 
                              ofertas=[], 
                              total_ofertas=0, 
@@ -164,7 +164,7 @@ def dashboard():
         {'$group': {'_id': '$fuente', 'count': {'$sum': 1}}}
     ]
     fuentes_list = list(ofertas_coll.aggregate(pipeline))
-    fuentes = {item['_id'] or 'Desconocido': item['count'] for item in fuentes_list}
+    fuentes = {item['_id'] or 'Desconocido': item['count'] for item in fuentes_list} if fuentes_list else {}
     
     return render_template('dashboard.html', 
                          ofertas=ofertas, 
@@ -178,7 +178,7 @@ def listar_ofertas():
     """Lista de ofertas con filtros"""
     ofertas_coll, _ = get_collections()
     
-    if not ofertas_coll:
+    if ofertas_coll is None:
         return render_template('ofertas.html', ofertas=[], filtros={}, page=1)
     
     # Filtros
@@ -232,7 +232,7 @@ def ver_oferta(oferta_id):
     """Ver detalle de una oferta"""
     ofertas_coll, _ = get_collections()
     
-    if not ofertas_coll:
+    if ofertas_coll is None:
         flash('Base de datos no disponible', 'error')
         return redirect(url_for('listar_ofertas'))
     
@@ -258,7 +258,7 @@ def estadisticas():
     """Página de estadísticas"""
     ofertas_coll, _ = get_collections()
     
-    if not ofertas_coll:
+    if ofertas_coll is None:
         return render_template('estadisticas.html',
                              total_ofertas=0,
                              por_nivel={},
@@ -416,6 +416,21 @@ def handle_exception(e):
         'mensaje': f'Ocurrió un error: {str(e)}',
         'detalles': traceback.format_exc() if app.config['DEBUG'] else None
     }), 500
+
+
+@app.route('/favicon.ico')
+def favicon():
+    """Maneja la solicitud de favicon para evitar errores 404"""
+    from flask import abort
+    import os
+    favicon_path = os.path.join(app.root_path, 'app', 'static', 'favicon.ico')
+    if os.path.exists(favicon_path):
+        from flask import send_from_directory
+        return send_from_directory(os.path.join(app.root_path, 'app', 'static'),
+                                  'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    else:
+        # Retornar 204 No Content si no existe el favicon
+        return '', 204
 
 
 if __name__ == '__main__':
