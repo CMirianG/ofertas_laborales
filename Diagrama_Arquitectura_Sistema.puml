@@ -1,0 +1,125 @@
+@startuml
+!theme plain
+skinparam roundcorner 20
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+
+title Arquitectura del Sistema\nSistema de Ofertas Laborales para Tacna
+
+actor "Personal de RSU" as Usuario #FFE5B4
+
+package "Interfaz de Usuario" #FFA500 {
+  component [HTML5\nCSS3\nJavaScript] as Frontend
+  component [Jinja2\nTemplates] as Templates
+  Frontend .. Templates
+  note right of Frontend
+    **Tecnologías Frontend:**
+    • HTML5
+    • CSS3
+    • JavaScript
+    • Jinja2 (Templating)
+  end note
+}
+
+package "API REST / Backend" #FF6B6B {
+  component [Flask\nMicroframework] as Flask
+  component [Python 3.8+] as Python
+  component [Blueprints\n(Rutas)] as Routes
+  component [Werkzeug\n(Seguridad)] as Security
+  Flask .. Python
+  Flask .. Routes
+  Flask .. Security
+  note right of Flask
+    **Stack Backend:**
+    • Flask (Web Framework)
+    • Python 3.8+
+    • Blueprints (Módulos)
+    • Werkzeug (Hashing)
+  end note
+}
+
+database "Base de Datos" #4ECDC4 {
+  component [MongoDB\nNoSQL] as MongoDB
+  component [PyMongo\nDriver] as Driver
+  MongoDB .. Driver
+  note right of MongoDB
+    **Base de Datos:**
+    • MongoDB (Document Store)
+    • PyMongo (Driver)
+    • Colecciones:
+      - ofertas
+      - usuarios
+      - logs_extraccion
+  end note
+}
+
+cloud "Portales de Empleo" #95E1D3 {
+  component [Computrabajo] as Compu
+  component [Bumeran] as Bumeran
+  component [Indeed] as Indeed
+  component [Trabajos.pe] as Trabajos
+}
+
+package "Servicios" #A8E6CF {
+  component [ScrapingService] as Scraping
+  component [MongoDBManager] as Manager
+  component [BeautifulSoup4\nHTML Parser] as BS4
+  component [Requests\nHTTP Client] as Requests
+  Scraping .. BS4
+  Scraping .. Requests
+  Scraping .. Manager
+  note right of Scraping
+    **Servicios:**
+    • ScrapingService
+      (Extracción)
+    • MongoDBManager
+      (Gestión BD)
+    • BeautifulSoup4
+      (Parseo HTML)
+    • Requests
+      (HTTP Requests)
+  end note
+}
+
+' Interacciones principales
+Usuario <--> Interfaz : "Interacción con la\nInterfaz Web"
+note right #FFFACD
+  **Flujo de Usuario:**
+  • Navegación web
+  • Formularios (login)
+  • Visualización de ofertas
+  • Consulta de estadísticas
+end note
+
+Interfaz <--> Backend : "Realiza Peticiones HTTP\n(GET, POST)\nRenderiza Templates"
+note right #FFFACD
+  **Comunicación:**
+  • Peticiones HTTP/REST
+  • Renderizado de templates
+  • Autenticación de sesiones
+  • Respuestas JSON/HTML
+end note
+
+Backend <--> DB : "Procesa Peticiones\nLógica de Negocios\nAcceso a Datos"
+note right #FFFACD
+  **Operaciones:**
+  • CRUD de ofertas
+  • Consultas y agregaciones
+  • Gestión de usuarios
+  • Registro de logs
+end note
+
+Backend --> Servicios : "Utiliza Servicios"
+Servicios --> Portales : "Extrae Ofertas\n(Web Scraping)"
+note right #FFFACD
+  **Scraping:**
+  • Peticiones HTTP a portales
+  • Parseo de HTML
+  • Filtrado por ubicación (Tacna)
+  • Normalización de datos
+end note
+
+Servicios --> DB : "Guarda Ofertas\nExtraídas"
+
+@enduml

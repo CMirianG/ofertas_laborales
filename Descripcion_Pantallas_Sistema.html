@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descripción de Pantallas - Sistema de Ofertas Laborales Tacna</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Times New Roman', Times, serif;
+            color: #000000;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header-section {
+            border-bottom: 3px solid #000000;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .pantalla-card {
+            border: 1px solid #000000;
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+        .pantalla-header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 1rem;
+            border-bottom: 2px solid #000000;
+        }
+        .funcionalidad-item {
+            padding: 0.5rem;
+            border-left: 3px solid #000000;
+            margin-bottom: 0.5rem;
+            background-color: #f9f9f9;
+        }
+        .ruta-url {
+            background-color: #f5f5f5;
+            padding: 0.5rem;
+            border: 1px solid #000000;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        .requisito-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #000000;
+            font-size: 0.85rem;
+            margin: 0.25rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        h5 {
+            font-size: 1rem;
+            margin-top: 0.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        table th, table td {
+            border: 1px solid #000000;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+            .pantalla-card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <h1>Descripción de Pantallas del Sistema</h1>
+        <p style="text-align: center; font-size: 1.1rem;"><strong>Sistema de Ofertas Laborales para Tacna</strong></p>
+        <p style="text-align: center;">Documentación técnica de interfaces y funcionalidades</p>
+    </div>
+
+    <div>
+        <!-- PANTALLA 1: LOGIN -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">1. Pantalla de Inicio de Sesión (Login)</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Autenticación de usuarios</p>
+            </div>
+            <div class="card-body">
+                <h5>Ruta de Acceso</h5>
+                <div class="ruta-url">GET /login</div>
+                <div class="ruta-url" style="margin-top: 0.5rem;">POST /login</div>
+                
+                <h5 style="margin-top: 1.5rem;">Requisitos de Acceso</h5>
+                <span class="requisito-badge">Pública (sin autenticación)</span>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Pantalla inicial del sistema que permite a los usuarios autenticarse mediante credenciales 
+                    (usuario y contraseña). Es el punto de entrada principal y redirige automáticamente a usuarios 
+                    ya autenticados al dashboard. Incluye validación de credenciales y mensajes de error informativos.
+                </p>
+
+                <h5 style="margin-top: 1.5rem;">Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>Autenticación de Usuarios:</strong>
+                    Permite ingresar con usuario y contraseña. Valida credenciales contra la base de datos MongoDB 
+                    o permite acceso en modo offline con credenciales predefinidas (admin/admin123).
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Validación de Formulario:</strong>
+                    Campos requeridos (usuario y contraseña) con validación HTML5 y retroalimentación visual.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Mensajes de Estado:</strong>
+                    Muestra mensajes flash informativos sobre el resultado del intento de login (éxito, error, 
+                    advertencias sobre modo offline).
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Redirección Automática:</strong>
+                    Si el usuario ya tiene sesión activa, es redirigido automáticamente al dashboard. 
+                    Si no tiene sesión, permanece en la pantalla de login.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Modo Offline:</strong>
+                    Soporta funcionamiento sin conexión a MongoDB, permitiendo login con credenciales 
+                    predefinidas y mostrando advertencia correspondiente.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Header:</strong> Muestra el título "Sistema de Ofertas - Tacna"</li>
+                    <li><strong>Formulario de login:</strong> Campos de usuario y contraseña</li>
+                    <li><strong>Botón de inicio de sesión:</strong> Botón principal para autenticarse</li>
+                    <li><strong>Información de credenciales:</strong> Muestra las credenciales por defecto (admin/admin123)</li>
+                    <li><strong>Alertas flash:</strong> Mensajes de éxito, error o advertencia según el resultado</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: DASHBOARD -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">2. Dashboard (Panel Principal)</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Vista general del sistema</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                <h5>Ruta de Acceso</h5>
+                <div class="ruta-url">GET /dashboard</div>
+                <div class="ruta-url" style="margin-top: 0.5rem;">GET /</div>
+                
+                <h5 style="margin-top: 1.5rem;">Requisitos de Acceso</h5>
+                <span class="requisito-badge">Requiere autenticación</span>
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Pantalla principal del sistema que proporciona una vista consolidada de las ofertas laborales 
+                    y estadísticas clave. Es la primera pantalla que ven los usuarios después de iniciar sesión. 
+                    Muestra métricas generales, ofertas recientes y acceso rápido a las principales funcionalidades.
+                </p>
+
+                <h5>Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>Tarjetas de Estadísticas:</strong>
+                    Muestra 4 tarjetas con métricas clave: Total de ofertas, ofertas de Computrabajo, ofertas de Bumeran, 
+                    y ofertas de Indeed. Cada tarjeta tiene un color distintivo y un ícono representativo.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Lista de Ofertas Recientes:</strong>
+                    Presenta las 10 ofertas más recientes en formato de tabla, mostrando título, empresa, nivel académico, 
+                    modalidad, salario, fuente y fecha de publicación.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Acceso Rápido a Funciones:</strong>
+                    Botón "Extraer Ofertas" que permite ejecutar el proceso de scraping desde el dashboard.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Navegación Integrada:</strong>
+                    Enlaces rápidos a otras secciones del sistema (Ofertas, Estadísticas) desde la barra de navegación.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Datos de Simulación:</strong>
+                    Si la base de datos está vacía o no hay conexión, muestra datos mock para demostración.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Header con título:</strong> "Dashboard" con ícono de tacómetro y botón de extracción</li>
+                    <li><strong>Tarjetas de métricas:</strong> 4 tarjetas con colores (azul, verde, naranja, rojo) mostrando estadísticas</li>
+                    <li><strong>Tabla de ofertas recientes:</strong> Tabla responsive con información resumida de las ofertas</li>
+                    <li><strong>Badges de estado:</strong> Indicadores visuales para nivel académico y modalidad de trabajo</li>
+                    <li><strong>Enlaces de acción:</strong> Botones para ver detalles y enlaces externos a ofertas originales</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PANTALLA 3: LISTA DE OFERTAS -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">3. Lista de Ofertas Laborales</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Búsqueda y filtrado de ofertas</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Ruta de Acceso</h5>
+                        <div class="ruta-url">GET /ofertas</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Requisitos de Acceso</h5>
+                        <span class="badge requisito-badge" style="border: 1px solid #000000;">Requiere autenticación</span>
+                    </div>
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Pantalla principal para explorar y buscar ofertas laborales. Permite filtrar ofertas por múltiples 
+                    criterios (búsqueda de texto, nivel académico, modalidad, empresa) y visualizar los resultados 
+                    en dos formatos diferentes: tabla o tarjetas. Incluye paginación para manejar grandes volúmenes de datos.
+                </p>
+
+                <h5>Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>Búsqueda de Texto:</strong>
+                    Campo de búsqueda que permite buscar en título de oferta, puesto y nombre de empresa. 
+                    La búsqueda es case-insensitive y utiliza expresiones regulares.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Filtros Avanzados:</strong>
+                    <ul class="mt-2">
+                        <li><strong>Nivel Académico:</strong> Filtro por Practicante, Bachiller o Profesional</li>
+                        <li><strong>Modalidad:</strong> Filtro por Presencial, Remoto o Híbrido</li>
+                        <li><strong>Empresa:</strong> Búsqueda específica por nombre de empresa</li>
+                    </ul>
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Vista Dual:</strong>
+                    Permite alternar entre vista de tabla (compacta, ideal para comparar) y vista de tarjetas 
+                    (visual, ideal para explorar). El usuario puede cambiar entre ambas vistas con botones dedicados.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Paginación:</strong>
+                    Muestra 20 ofertas por página con navegación entre páginas. Los filtros se mantienen al cambiar de página.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Acciones por Oferta:</strong>
+                    Cada oferta tiene botones para ver detalles completos y abrir la oferta original en el portal de origen.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Extracción de Ofertas:</strong>
+                    Botón para ejecutar el proceso de scraping y actualizar la base de datos con nuevas ofertas.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Contador de Resultados:</strong>
+                    Muestra el número total de ofertas encontradas según los filtros aplicados.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Header con acciones:</strong> Título "Ofertas Laborales" con botones de extracción y filtros</li>
+                    <li><strong>Formulario de filtros:</strong> Card con campos de búsqueda y selectores de filtros</li>
+                    <li><strong>Vista de tabla:</strong> Tabla responsive con columnas: Título, Empresa, Nivel, Experiencia, Modalidad, Salario, Fuente, Fecha, Acciones</li>
+                    <li><strong>Vista de tarjetas:</strong> Grid de tarjetas con información resumida y visualmente atractiva</li>
+                    <li><strong>Selector de vista:</strong> Botones para alternar entre vista tabla y tarjetas</li>
+                    <li><strong>Mensaje de sin resultados:</strong> Muestra mensaje informativo cuando no hay ofertas que coincidan con los filtros</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PANTALLA 4: DETALLE DE OFERTA -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">4. Detalle de Oferta Laboral</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Información completa de una oferta</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Ruta de Acceso</h5>
+                        <div class="ruta-url">GET /ofertas/&lt;oferta_id&gt;</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Requisitos de Acceso</h5>
+                        <span class="badge requisito-badge" style="border: 1px solid #000000;">Requiere autenticación</span>
+                    </div>
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Pantalla de detalle que muestra toda la información disponible de una oferta laboral específica. 
+                    Incluye información completa sobre el puesto, empresa, requisitos, responsabilidades, conocimientos 
+                    necesarios y documentos requeridos. Proporciona enlaces para acceder a la oferta original en el portal.
+                </p>
+
+                <h5>Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Información Completa:</strong>
+                    Muestra todos los detalles de la oferta: título, empresa, puesto, ubicación, modalidad, 
+                    experiencia requerida, jornada, salario, nivel académico.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Responsabilidades:</strong>
+                    Sección dedicada que describe las responsabilidades principales del puesto de trabajo.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Conocimientos Clave:</strong>
+                    Lista de conocimientos, habilidades o tecnologías requeridas, presentadas como badges 
+                    para fácil visualización.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Documentos Requeridos:</strong>
+                    Lista de documentos que el candidato debe presentar para postular al puesto.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Enlace a Oferta Original:</strong>
+                    Botón que abre la oferta en el portal de origen (Computrabajo, Bumeran, etc.) en una nueva pestaña.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Navegación con Breadcrumbs:</strong>
+                    Ruta de navegación (breadcrumbs) que permite volver fácilmente al dashboard o a la lista de ofertas.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Información de Fuente:</strong>
+                    Muestra de qué portal fue extraída la oferta y la fecha de publicación original.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Breadcrumbs:</strong> Navegación Dashboard > Ofertas > [Título de Oferta]</li>
+                    <li><strong>Header de oferta:</strong> Título grande, nombre de empresa y badge de nivel académico</li>
+                    <li><strong>Información en dos columnas:</strong> Layout organizado que distribuye la información principal</li>
+                    <li><strong>Secciones expandidas:</strong> Responsabilidades, conocimientos clave y documentos en secciones separadas</li>
+                    <li><strong>Badges de conocimientos:</strong> Etiquetas visuales para cada conocimiento requerido</li>
+                    <li><strong>Botón de acción principal:</strong> Botón destacado para ver la oferta original</li>
+                    <li><strong>Información adicional:</strong> Fecha de publicación, fuente, URL de la oferta</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PANTALLA 5: ESTADÍSTICAS -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">5. Estadísticas y Análisis</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Análisis de datos de ofertas</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Ruta de Acceso</h5>
+                        <div class="ruta-url">GET /estadisticas</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Requisitos de Acceso</h5>
+                        <span class="badge requisito-badge" style="border: 1px solid #000000;">Requiere autenticación</span>
+                    </div>
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Pantalla de análisis que presenta estadísticas detalladas sobre las ofertas laborales almacenadas 
+                    en el sistema. Utiliza gráficos interactivos (Chart.js) para visualizar distribuciones por nivel 
+                    académico, modalidad, fuente y empresas más activas. Proporciona insights valiosos para entender 
+                    el mercado laboral en Tacna.
+                </p>
+
+                <h5>Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Tarjetas de Resumen:</strong>
+                    Cuatro tarjetas con métricas clave: Total de ofertas, ofertas para Profesionales, Técnicos y Bachilleres. 
+                    Cada tarjeta tiene un color distintivo y un ícono representativo.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Gráfico de Distribución por Nivel:</strong>
+                    Gráfico de pastel (pie chart) que muestra la proporción de ofertas según el nivel académico requerido 
+                    (Profesional, Bachiller, Practicante).
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Gráfico de Distribución por Modalidad:</strong>
+                    Gráfico de dona (doughnut chart) que visualiza la distribución de ofertas según la modalidad de trabajo 
+                    (Presencial, Remoto, Híbrido).
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Gráfico de Distribución por Fuente:</strong>
+                    Gráfico de barras horizontales que muestra cuántas ofertas provienen de cada portal (Computrabajo, 
+                    Bumeran, Indeed, Trabajos.pe).
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Tabla de Top Empresas:</strong>
+                    Tabla que lista las 10 empresas que más ofertas han publicado, ordenadas por cantidad de ofertas.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Información del Sistema:</strong>
+                    Sección que muestra la última actualización, número de fuentes monitoreadas y estado del sistema.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>Datos de Simulación:</strong>
+                    Si la base de datos está vacía, muestra estadísticas calculadas a partir de datos mock para demostración.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Header descriptivo:</strong> Título "Estadísticas" con descripción del propósito</li>
+                    <li><strong>Tarjetas de métricas:</strong> 4 tarjetas con colores (azul, verde, azul claro, amarillo) y grandes números</li>
+                    <li><strong>Gráficos interactivos:</strong> Canvas con Chart.js para visualización de datos</li>
+                    <li><strong>Tabla de empresas:</strong> Tabla responsive con ranking de empresas más activas</li>
+                    <li><strong>Card de información del sistema:</strong> Información técnica sobre el estado y configuración</li>
+                    <li><strong>Fecha de actualización dinámica:</strong> Muestra la fecha y hora actual usando JavaScript</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- FUNCIONALIDAD ADICIONAL: EXTRACCIÓN -->
+        <div class="card pantalla-card">
+            <div class="pantalla-header">
+                <h3 style="color: #ffffff; margin: 0;">6. Funcionalidad de Extracción de Ofertas</h3>
+                <p style="color: #ffffff; margin: 0.5rem 0 0 0;">Proceso de scraping automático</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Ruta de Acceso</h5>
+                        <div class="ruta-url">POST /extraer</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Requisitos de Acceso</h5>
+                        <span class="badge requisito-badge" style="border: 1px solid #000000;">Requiere autenticación</span>
+                    </div>
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Descripción General</h5>
+                <p class="text-muted mb-4">
+                    Funcionalidad backend que ejecuta el proceso de web scraping para extraer ofertas laborales de múltiples 
+                    portales (Computrabajo, Bumeran, Indeed, Trabajos.pe). Se ejecuta mediante una petición AJAX desde 
+                    cualquier pantalla que tenga el botón "Extraer Ofertas". El proceso es asíncrono y muestra notificaciones 
+                    de progreso y resultado.
+                </p>
+
+                <h5>Funcionalidades Principales</h5>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Scraping Multi-Portal:</strong>
+                    Extrae ofertas de 4 portales diferentes: Computrabajo, Bumeran, Indeed y Trabajos.pe, 
+                    utilizando técnicas de web scraping con BeautifulSoup y Requests.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Procesamiento Asíncrono:</strong>
+                    Se ejecuta en segundo plano sin bloquear la interfaz del usuario. Muestra indicadores de carga 
+                    durante el proceso.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Deduplicación:</strong>
+                    Evita insertar ofertas duplicadas comparando el ID único de cada oferta antes de guardarla.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Notificaciones:</strong>
+                    Muestra mensajes de éxito o error al finalizar el proceso, indicando cuántas ofertas nuevas 
+                    se agregaron o si hubo algún problema.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Manejo de Errores:</strong>
+                    Captura y registra errores de conexión, parsing o base de datos, proporcionando mensajes 
+                    informativos al usuario.
+                </div>
+                <div class="funcionalidad-item">
+                    <strong>check-circle me-2 text-success"></i>Actualización Automática:</strong>
+                    Después de una extracción exitosa, el usuario puede ver las nuevas ofertas en las pantallas 
+                    de Dashboard y Lista de Ofertas.
+                </div>
+
+                <h5 style="margin-top: 1.5rem;">Elementos de Interfaz</h5>
+                <ul>
+                    <li><strong>Botón "Extraer Ofertas":</strong> Disponible en Dashboard y Lista de Ofertas, con ícono de sincronización</li>
+                    <li><strong>Indicador de carga:</strong> Muestra estado de carga durante el proceso (mediante JavaScript)</li>
+                    <li><strong>Alertas de resultado:</strong> Mensajes flash que informan sobre el éxito o fallo de la extracción</li>
+                    <li><strong>Respuesta JSON:</strong> El endpoint retorna información estructurada sobre el resultado del proceso</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RESUMEN DE NAVEGACIÓN -->
+        <div class="card pantalla-card" style="background-color: #f9f9f9;">
+            <div class="card-body">
+                <h3>Flujo de Navegación del Sistema</h3>
+                <h5>Flujo Principal:</h5>
+                <ol>
+                    <li><strong>Login</strong> → Autenticación del usuario</li>
+                    <li><strong>Dashboard</strong> → Vista general y ofertas recientes</li>
+                    <li><strong>Ofertas</strong> → Búsqueda y filtrado de ofertas</li>
+                    <li><strong>Detalle de Oferta</strong> → Información completa de una oferta específica</li>
+                    <li><strong>Estadísticas</strong> → Análisis y gráficos de datos</li>
+                </ol>
+                <h5>Accesos Rápidos:</h5>
+                <ul>
+                    <li>Desde cualquier pantalla: <strong>Barra de navegación</strong> para cambiar de sección</li>
+                    <li>Desde Dashboard/Ofertas: <strong>Botón "Extraer Ofertas"</strong> para actualizar datos</li>
+                    <li>Desde Lista de Ofertas: <strong>Botón "Ver detalles"</strong> para ver oferta completa</li>
+                    <li>Desde cualquier pantalla: <strong>Menú de usuario</strong> para cerrar sesión</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TECNOLOGÍAS UTILIZADAS -->
+        <div class="card pantalla-card" style="background-color: #f9f9f9;">
+            <div class="card-body">
+                <h3>Tecnologías y Herramientas</h3>
+                <h5>Frontend:</h5>
+                <ul>
+                    <li>HTML5</li>
+                    <li>CSS3 (Bootstrap 5.1.3)</li>
+                    <li>JavaScript (Vanilla)</li>
+                    <li>Chart.js (gráficos)</li>
+                    <li>Font Awesome 6.0 (íconos)</li>
+                    <li>Jinja2 (templating)</li>
+                </ul>
+                <h5>Backend:</h5>
+                <ul>
+                    <li>Flask (framework web)</li>
+                    <li>Python 3.x</li>
+                    <li>PyMongo (MongoDB driver)</li>
+                    <li>BeautifulSoup4 (scraping)</li>
+                    <li>Requests (HTTP client)</li>
+                    <li>Werkzeug (seguridad)</li>
+                </ul>
+                <h5>Base de Datos:</h5>
+                <ul>
+                    <li>MongoDB (NoSQL)</li>
+                    <li>Datos de simulación (mock data)</li>
+                    <li>Soporte offline</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RECOMENDACIONES -->
+        <div class="card pantalla-card" style="background-color: #f9f9f9;">
+            <div class="card-body">
+                <h3>Recomendaciones</h3>
+                
+                <h5>Mejoras Funcionales:</h5>
+                <ul>
+                    <li>Implementar sistema de notificaciones por correo electrónico para nuevas ofertas que coincidan con perfiles de búsqueda guardados.</li>
+                    <li>Agregar funcionalidad de favoritos para que los usuarios puedan guardar ofertas de interés.</li>
+                    <li>Desarrollar un módulo de reportes exportables en formato PDF o Excel para análisis externos.</li>
+                    <li>Implementar búsqueda avanzada con múltiples criterios combinados y operadores lógicos (AND, OR, NOT).</li>
+                    <li>Agregar sistema de calificación o comentarios para las ofertas por parte de los usuarios.</li>
+                </ul>
+
+                <h5>Mejoras Técnicas:</h5>
+                <ul>
+                    <li>Implementar caché de resultados de búsqueda para mejorar el rendimiento del sistema.</li>
+                    <li>Agregar pruebas unitarias y de integración para garantizar la calidad del código.</li>
+                    <li>Implementar logging más detallado para facilitar el diagnóstico de problemas en producción.</li>
+                    <li>Desarrollar una API REST completa para permitir la integración con otros sistemas.</li>
+                    <li>Implementar paginación más eficiente utilizando cursores en lugar de offsets para grandes volúmenes de datos.</li>
+                </ul>
+
+                <h5>Mejoras de Seguridad:</h5>
+                <ul>
+                    <li>Implementar autenticación de dos factores (2FA) para mayor seguridad en el acceso.</li>
+                    <li>Agregar rate limiting en las rutas de extracción para prevenir abuso del sistema.</li>
+                    <li>Implementar validación más estricta de inputs para prevenir inyecciones y ataques XSS.</li>
+                    <li>Agregar cifrado de datos sensibles en la base de datos.</li>
+                    <li>Implementar auditoría de accesos y cambios en el sistema.</li>
+                </ul>
+
+                <h5>Mejoras de Usabilidad:</h5>
+                <ul>
+                    <li>Implementar diseño responsive completo para dispositivos móviles y tablets.</li>
+                    <li>Agregar tutorial interactivo para nuevos usuarios del sistema.</li>
+                    <li>Implementar búsquedas guardadas con alertas automáticas.</li>
+                    <li>Agregar modo oscuro como opción de visualización.</li>
+                    <li>Implementar ayuda contextual en cada pantalla para facilitar el uso del sistema.</li>
+                </ul>
+
+                <h5>Mejoras de Mantenibilidad:</h5>
+                <ul>
+                    <li>Documentar todos los módulos y funciones con docstrings completos siguiendo estándares Python.</li>
+                    <li>Implementar CI/CD para automatizar pruebas y despliegues.</li>
+                    <li>Crear documentación técnica más detallada para desarrolladores.</li>
+                    <li>Establecer un proceso de versionado semántico para el sistema.</li>
+                    <li>Implementar monitoreo y alertas para el estado del sistema en producción.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- BIBLIOGRAFÍA -->
+        <div class="card pantalla-card">
+            <div class="card-body">
+                <h3>Bibliografía</h3>
+                
+                <p style="margin-bottom: 1.5rem; text-align: justify;">
+                    Las siguientes referencias bibliográficas fueron consultadas durante el desarrollo y documentación del Sistema de Ofertas Laborales para Tacna. Todas las citas siguen el formato APA 7ª edición.
+                </p>
+
+                <div style="text-align: left; line-height: 1.8;">
+                    <p>Grinberg, M. (2018). <em>Flask Web Development: Developing Web Applications with Python</em> (2ª ed.). O'Reilly Media.</p>
+
+                    <p>Gunther, M. (2020). <em>MongoDB: The Definitive Guide: Powerful and Scalable Data Storage</em> (3ª ed.). O'Reilly Media.</p>
+
+                    <p>Python Software Foundation. (2024). <em>Python 3 Documentation</em>. https://docs.python.org/3/</p>
+
+                    <p>Pallets Projects. (2024). <em>Flask Documentation</em>. https://flask.palletsprojects.com/</p>
+
+                    <p>MongoDB Inc. (2024). <em>MongoDB Manual</em>. https://www.mongodb.com/docs/</p>
+
+                    <p>MongoDB Inc. (2024). <em>PyMongo Documentation</em>. https://pymongo.readthedocs.io/</p>
+
+                    <p>Beautiful Soup. (2024). <em>Beautiful Soup Documentation</em>. https://www.crummy.com/software/BeautifulSoup/bs4/doc/</p>
+
+                    <p>Requests Contributors. (2024). <em>Requests: HTTP for Humans</em>. https://requests.readthedocs.io/</p>
+
+                    <p>Pallets Projects. (2024). <em>Werkzeug Documentation</em>. https://werkzeug.palletsprojects.com/</p>
+
+                    <p>Pallets Projects. (2024). <em>Jinja Documentation</em>. https://jinja.palletsprojects.com/</p>
+
+                    <p>Chart.js Contributors. (2024). <em>Chart.js Documentation</em>. https://www.chartjs.org/docs/</p>
+
+                    <p>Bootstrap Team. (2024). <em>Bootstrap Documentation</em>. https://getbootstrap.com/docs/</p>
+
+                    <p>Pressman, R. S., & Maxim, B. R. (2020). <em>Ingeniería del Software: Un Enfoque Práctico</em> (9ª ed.). McGraw-Hill Education.</p>
+
+                    <p>Sommerville, I. (2016). <em>Ingeniería del Software</em> (10ª ed.). Pearson Educación.</p>
+
+                    <p>Fowler, M. (2019). <em>Patterns of Enterprise Application Architecture</em>. Addison-Wesley Professional.</p>
+
+                    <p>Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Addison-Wesley Professional.</p>
+
+                    <p>Mitchell, R. (2018). <em>Web Scraping with Python: Collecting Data from the Modern Web</em> (2ª ed.). O'Reilly Media.</p>
+
+                    <p>Lutz, M. (2013). <em>Learning Python: Powerful Object-Oriented Programming</em> (5ª ed.). O'Reilly Media.</p>
+
+                    <p>Ramalho, L. (2022). <em>Fluent Python: Clear, Concise, and Effective Programming</em> (2ª ed.). O'Reilly Media.</p>
+
+                    <p>American Psychological Association. (2020). <em>Publication Manual of the American Psychological Association</em> (7ª ed.). American Psychological Association.</p>
+
+                    <p>World Wide Web Consortium. (2024). <em>HTML5 Specification</em>. https://www.w3.org/TR/html52/</p>
+
+                    <p>World Wide Web Consortium. (2024). <em>CSS3 Specification</em>. https://www.w3.org/Style/CSS/</p>
+
+                    <p>ECMAScript Language Specification. (2024). <em>ECMAScript 2024 Language Specification</em>. https://tc39.es/ecma262/</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div style="text-align: center; margin: 3rem 0 1rem 0; padding-top: 2rem; border-top: 1px solid #000000;">
+            <p>Documentación generada para el Sistema de Ofertas Laborales - Tacna</p>
+            <p>© 2024 - Todos los derechos reservados</p>
+        </div>
+    </div>
+
+</body>
+</html>
+

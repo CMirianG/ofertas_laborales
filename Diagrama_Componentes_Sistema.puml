@@ -1,0 +1,129 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam component {
+  BackgroundColor #FFA500
+  BorderColor #000000
+}
+
+title Diagrama de Componentes\nSistema de Ofertas Laborales para Tacna
+
+package "Sistema" {
+  
+  [Personal de RSU] as Usuario #FFE5B4
+  
+  component "Controladores" as Controladores #FFA500 {
+    [auth_bp] as Auth
+    [dashboard_bp] as Dashboard
+    [ofertas_bp] as Ofertas
+  }
+  
+  component "Interfaz Web" as Interfaz #FFA500 {
+    [Templates] as Templates
+    [Vistas] as Vistas
+  }
+  
+  component "Servicios" as Servicios #FFA500 {
+    [MongoDBManager] as Manager
+    [ScrapingService] as Scraping
+  }
+  
+  component "Base de Datos" as BD #FFA500 {
+    [MongoDB] as MongoDB
+  }
+  
+  component "Datos para Simulación" as Simulacion #90EE90 {
+    [Mock Data] as Mock
+    [Ofertas de Prueba] as OfertasMock
+    [Usuarios de Prueba] as UsuariosMock
+    [Estadísticas Mock] as StatsMock
+    Mock .. OfertasMock
+    Mock .. UsuariosMock
+    Mock .. StatsMock
+  }
+}
+
+' Interfaces proporcionadas (círculos llenos)
+Controladores -()- "render_template" as I1
+Controladores -()- "request/session" as I2
+
+Interfaz -()- "renderizar" as I3
+Interfaz -()- "mostrar" as I4
+
+Servicios -()- "get_ofertas" as I5
+Servicios -()- "run_scraping" as I6
+
+BD -()- "CRUD" as I7
+BD -()- "Agregaciones" as I8
+
+Simulacion -()- "get_mock_ofertas" as I9
+Simulacion -()- "get_mock_estadisticas" as I10
+Simulacion -()- "get_mock_usuarios" as I11
+
+' Interfaces requeridas (semicírculos)
+Controladores -()- "requiere" as R1
+Controladores -()- "requiere" as R2
+
+Servicios -()- "requiere" as R3
+Servicios -()- "requiere" as R4
+
+BD -()- "requiere" as R5
+
+' Dependencias (flechas punteadas)
+Usuario ..> Controladores : usa
+Controladores ..> Interfaz : requiere
+Controladores ..> Servicios : requiere
+Servicios ..> BD : requiere
+Servicios ..> Simulacion : usa (modo offline)
+Controladores ..> Simulacion : usa (modo offline)
+
+' Conexiones de interfaces (líneas sólidas)
+Controladores }o--|| Interfaz : "requiere\nrender_template"
+Servicios }o--|| BD : "requiere\nCRUD"
+Servicios }o--|| Simulacion : "requiere\n(mock data)"
+
+note right of Controladores
+  **Controladores (Blueprints):**
+  • auth_bp: Autenticación
+  • dashboard_bp: Dashboard
+  • ofertas_bp: Ofertas
+end note
+
+note right of Interfaz
+  **Interfaz Web:**
+  • Templates Jinja2
+  • HTML5, CSS3, JavaScript
+  • Vistas dinámicas
+end note
+
+note right of Servicios
+  **Servicios:**
+  • MongoDBManager
+  • ScrapingService
+end note
+
+note right of BD
+  **Base de Datos:**
+  • MongoDB (NoSQL)
+  • Colecciones: ofertas,
+    usuarios, logs
+end note
+
+note right of Simulacion
+  **Datos para Simulación:**
+  • Mock Data: Datos de prueba
+  • Ofertas de Prueba: Ofertas
+    simuladas para desarrollo
+  • Usuarios de Prueba: Usuarios
+    mock para testing
+  • Estadísticas Mock: Datos
+    estadísticos simulados
+  • Uso: Modo offline o
+    cuando MongoDB no está
+    disponible
+end note
+
+@enduml

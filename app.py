@@ -139,32 +139,18 @@ def logout():
 @login_required
 def dashboard():
     """Dashboard principal"""
-    ofertas_coll, _ = get_collections()
+    # Usar MongoDBManager que incluye soporte para datos mock
+    from app.services.database_service import MongoDBManager
+    from config.settings import Config
     
-    if ofertas_coll is None:
-        return render_template('dashboard.html', 
-                             ofertas=[], 
-                             total_ofertas=0, 
-                             fuentes={})
+    db_manager = MongoDBManager(Config.MONGODB_URI)
     
-    # Obtener ofertas recientes
-    ofertas = list(ofertas_coll.find().sort('created_at', DESCENDING).limit(10))
+    # Obtener ofertas y estadísticas (usará datos mock si la BD está vacía)
+    ofertas = db_manager.get_ofertas(limit=10)
+    stats = db_manager.get_estadisticas()
     
-    # Convertir ObjectId a string y agregar campo id
-    for oferta in ofertas:
-        oferta['_id'] = str(oferta['_id'])
-        if 'id' not in oferta:
-            oferta['id'] = oferta.get('id', oferta['_id'])
-    
-    # Estadísticas simples
-    total_ofertas = ofertas_coll.count_documents({})
-    
-    # Fuentes
-    pipeline = [
-        {'$group': {'_id': '$fuente', 'count': {'$sum': 1}}}
-    ]
-    fuentes_list = list(ofertas_coll.aggregate(pipeline))
-    fuentes = {item['_id'] or 'Desconocido': item['count'] for item in fuentes_list} if fuentes_list else {}
+    total_ofertas = stats.get('total_ofertas', 0)
+    fuentes = stats.get('por_fuente', {})
     
     return render_template('dashboard.html', 
                          ofertas=ofertas, 
@@ -176,52 +162,38 @@ def dashboard():
 @login_required
 def listar_ofertas():
     """Lista de ofertas con filtros"""
-    ofertas_coll, _ = get_collections()
+    from app.services.database_service import MongoDBManager
+    from config.settings import Config
     
-    if ofertas_coll is None:
-        return render_template('ofertas.html', ofertas=[], filtros={}, page=1)
+    db_manager = MongoDBManager(Config.MONGODB_URI)
     
     # Filtros
     filtros = {}
-    query = {}
     
     if request.args.get('busqueda'):
-        busqueda = request.args.get('busqueda')
-        filtros['busqueda'] = busqueda
-        query['$or'] = [
-            {'titulo_oferta': {'$regex': busqueda, '$options': 'i'}},
-            {'empresa': {'$regex': busqueda, '$options': 'i'}},
-            {'puesto': {'$regex': busqueda, '$options': 'i'}}
-        ]
+        filtros['busqueda'] = request.args.get('busqueda')
     
     if request.args.get('empresa'):
-        empresa = request.args.get('empresa')
-        filtros['empresa'] = empresa
-        query['empresa'] = {'$regex': empresa, '$options': 'i'}
+        filtros['empresa'] = request.args.get('empresa')
     
     if request.args.get('nivel_academico'):
-        nivel = request.args.get('nivel_academico')
-        filtros['nivel_academico'] = nivel
-        query['nivel_academico'] = nivel
+        filtros['nivel_academico'] = request.args.get('nivel_academico')
     
     if request.args.get('modalidad'):
-        modalidad = request.args.get('modalidad')
-        filtros['modalidad'] = modalidad
-        query['modalidad'] = modalidad
+        filtros['modalidad'] = request.args.get('modalidad')
     
     # Paginación
     page = int(request.args.get('page', 1))
     limit = 20
-    skip = (page - 1) * limit
+    offset = (page - 1) * limit
     
-    # Obtener ofertas
-    ofertas = list(ofertas_coll.find(query).sort('created_at', DESCENDING).skip(skip).limit(limit))
+    # Obtener ofertas usando MongoDBManager (incluye datos de simulación)
+    ofertas = db_manager.get_ofertas(filtros=filtros, limit=limit, offset=offset)
     
-    # Convertir ObjectId y agregar campo id
+    # Asegurar que todas las ofertas tengan un campo 'id'
     for oferta in ofertas:
-        oferta['_id'] = str(oferta['_id'])
         if 'id' not in oferta:
-            oferta['id'] = oferta.get('id', oferta['_id'])
+            oferta['id'] = oferta.get('_id', str(oferta.get('id', '')))
     
     return render_template('ofertas.html', ofertas=ofertas, filtros=filtros, page=page)
 
@@ -230,22 +202,31 @@ def listar_ofertas():
 @login_required
 def ver_oferta(oferta_id):
     """Ver detalle de una oferta"""
-    ofertas_coll, _ = get_collections()
+    from app.services.database_service import MongoDBManager
+    from config.settings import Config
     
-    if ofertas_coll is None:
-        flash('Base de datos no disponible', 'error')
-        return redirect(url_for('listar_ofertas'))
+    db_manager = MongoDBManager(Config.MONGODB_URI)
     
-    oferta = ofertas_coll.find_one({'id': oferta_id})
+    # Intentar obtener la oferta por ID
+    oferta = db_manager.get_oferta_by_id(oferta_id)
     
+    # Si no se encuentra, buscar en datos de simulación
     if not oferta:
-        oferta = ofertas_coll.find_one({'_id': oferta_id})
+        mock_ofertas = db_manager.get_ofertas(limit=1000, offset=0)
+        for mock_oferta in mock_ofertas:
+            if str(mock_oferta.get('id', '')) == str(oferta_id) or str(mock_oferta.get('_id', '')) == str(oferta_id):
+                oferta = mock_oferta
+                break
     
     if not oferta:
         flash('Oferta no encontrada', 'error')
         return redirect(url_for('listar_ofertas'))
     
-    oferta['_id'] = str(oferta['_id'])
+    # Asegurar que tenga _id como string
+    if '_id' in oferta:
+        oferta['_id'] = str(oferta['_id'])
+    if 'id' not in oferta:
+        oferta['id'] = oferta.get('_id', oferta_id)
     if 'id' not in oferta:
         oferta['id'] = oferta.get('id', oferta['_id'])
     
@@ -256,43 +237,28 @@ def ver_oferta(oferta_id):
 @login_required
 def estadisticas():
     """Página de estadísticas"""
-    ofertas_coll, _ = get_collections()
+    # Usar MongoDBManager que incluye soporte para datos mock
+    from app.services.database_service import MongoDBManager
+    from config.settings import Config
     
-    if ofertas_coll is None:
-        return render_template('estadisticas.html',
-                             total_ofertas=0,
-                             por_nivel={},
-                             por_modalidad={},
-                             por_fuente={},
-                             top_empresas={})
+    db_manager = MongoDBManager(Config.MONGODB_URI)
     
-    total_ofertas = ofertas_coll.count_documents({})
+    # Obtener estadísticas (usará datos mock si la BD está vacía)
+    stats = db_manager.get_estadisticas()
     
-    # Agregaciones
-    niveles = list(ofertas_coll.aggregate([
-        {'$group': {'_id': '$nivel_academico', 'count': {'$sum': 1}}}
-    ]))
-    
-    modalidades = list(ofertas_coll.aggregate([
-        {'$group': {'_id': '$modalidad', 'count': {'$sum': 1}}}
-    ]))
-    
-    fuentes = list(ofertas_coll.aggregate([
-        {'$group': {'_id': '$fuente', 'count': {'$sum': 1}}}
-    ]))
-    
-    empresas = list(ofertas_coll.aggregate([
-        {'$group': {'_id': '$empresa', 'count': {'$sum': 1}}},
-        {'$sort': {'count': -1}},
-        {'$limit': 10}
-    ]))
+    # Extraer las estadísticas con los nombres que el template espera
+    total_ofertas = stats.get('total_ofertas', 0)
+    niveles = stats.get('por_nivel', {})
+    modalidades = stats.get('por_modalidad', {})
+    fuentes = stats.get('por_fuente', {})
+    top_empresas = stats.get('top_empresas', {})
     
     return render_template('estadisticas.html',
                          total_ofertas=total_ofertas,
-                         por_nivel={item['_id'] or 'N/A': item['count'] for item in niveles},
-                         por_modalidad={item['_id'] or 'N/A': item['count'] for item in modalidades},
-                         por_fuente={item['_id'] or 'N/A': item['count'] for item in fuentes},
-                         top_empresas={item['_id'] or 'N/A': item['count'] for item in empresas})
+                         niveles=niveles,
+                         modalidades=modalidades,
+                         fuentes=fuentes,
+                         top_empresas=top_empresas)
 
 
 @app.route('/extraer', methods=['POST'])

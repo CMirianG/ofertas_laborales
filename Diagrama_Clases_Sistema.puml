@@ -1,0 +1,193 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam roundcorner 20
+
+title Diagrama de Clases - Sistema de Ofertas Laborales para Tacna
+
+package "Config" {
+  class Config {
+    - SECRET_KEY: str
+    - DEBUG: bool
+    - HOST: str
+    - PORT: int
+    - MONGODB_URI: str
+    - MONGODB_DATABASE: str
+    - USER_AGENT: str
+    - REQUEST_TIMEOUT: int
+    - MAX_RETRIES: int
+    - TACNA_KEYWORDS: List[str]
+    - JOB_LEVELS: List[str]
+    - VALID_ACADEMIC_LEVELS: List[str]
+    - PORTALS: Dict[str, str]
+    - OFERTAS_PER_PAGE: int
+    - MAX_RESULTS: int
+    - LOG_LEVEL: str
+    - LOG_FILE: str
+  }
+}
+
+package "Services" {
+  class MongoDBManager {
+    - client: MongoClient
+    - db: Database
+    - ofertas_collection: Collection
+    - usuarios_collection: Collection
+    - logs_collection: Collection
+    - logger: Logger
+    - _connected: bool
+    + __init__(connection_string: str)
+    - _create_indexes(): void
+    - _check_connection(): bool
+    + insert_oferta(oferta_data: Dict): bool
+    + get_ofertas(filtros: Dict, limite: int): List[Dict]
+    + get_oferta_by_id(id: str): Optional[Dict]
+    + get_estadisticas(): Dict
+    + create_user(username: str, password_hash: str, email: str): bool
+    + get_user_by_username(username: str): Optional[Dict]
+    + log_extraccion(fuente: str, estadisticas: Dict): void
+  }
+
+  class ScrapingService {
+    - session: Session
+    - user_agents: List[str]
+    - logger: Logger
+    - db_manager: MongoDBManager
+    - stats: Dict
+    + __init__(db_manager: MongoDBManager)
+    - _get_random_user_agent(): str
+    - _make_request(url: str, retries: int): Optional[BeautifulSoup]
+    - _extract_from_portal(portal_name: str, url: str): List[Dict]
+    - _parse_computrabajo(soup: BeautifulSoup, base_url: str): List[Dict]
+    - _parse_bumeran(soup: BeautifulSoup, base_url: str): List[Dict]
+    - _parse_indeed(soup: BeautifulSoup, base_url: str): List[Dict]
+    - _parse_trabajos_pe(soup: BeautifulSoup, base_url: str): List[Dict]
+    - _normalize_oferta(oferta: Dict, fuente: str): Dict
+    - _filter_by_tacna(oferta: Dict): bool
+    - _generate_oferta_id(oferta: Dict): str
+    + run_scraping(): Dict
+  }
+}
+
+package "Controllers" {
+  class AuthController {
+    + auth_bp: Blueprint
+    + login(): Response
+    + logout(): Response
+    - get_db_manager(): MongoDBManager
+    - login_required(f): Function
+  }
+
+  class DashboardController {
+    + dashboard_bp: Blueprint
+    + dashboard(): Response
+    + estadisticas(): Response
+    - get_db_manager(): MongoDBManager
+    - login_required(f): Function
+  }
+
+  class OfertasController {
+    + ofertas_bp: Blueprint
+    + listar_ofertas(): Response
+    + ver_oferta(id: str): Response
+    + extraer_ofertas(): Response
+    - get_db_manager(): MongoDBManager
+    - get_scraping_service(): ScrapingService
+    - login_required(f): Function
+  }
+}
+
+package "Application" {
+  class FlaskApp {
+    - app: Flask
+    + create_app(config_class: Config): Flask
+    - initialize_database(config_class: Config, logger: Logger): void
+  }
+}
+
+package "External Libraries" {
+  class MongoClient {
+    + admin: Database
+    + __getitem__(name: str): Database
+  }
+
+  class Flask {
+    + config: dict
+    + secret_key: str
+    + register_blueprint(bp: Blueprint): void
+    + route(rule: str): Decorator
+  }
+
+  class Blueprint {
+    + name: str
+    + route(rule: str): Decorator
+  }
+
+  class BeautifulSoup {
+    + find_all(name: str): List[Tag]
+    + find(name: str): Tag
+  }
+
+  class requests.Session {
+    + headers: dict
+    + get(url: str): Response
+  }
+}
+
+' Relaciones
+Config --> MongoDBManager : usa
+Config --> ScrapingService : usa
+MongoDBManager --> MongoClient : usa
+ScrapingService --> MongoDBManager : usa
+ScrapingService --> requests.Session : usa
+ScrapingService --> BeautifulSoup : usa
+ScrapingService --> Config : usa
+
+AuthController --> MongoDBManager : usa
+AuthController --> Config : usa
+AuthController --> Blueprint : extiende
+
+DashboardController --> MongoDBManager : usa
+DashboardController --> Blueprint : extiende
+
+OfertasController --> MongoDBManager : usa
+OfertasController --> ScrapingService : usa
+OfertasController --> Config : usa
+OfertasController --> Blueprint : extiende
+
+FlaskApp --> Flask : crea
+FlaskApp --> Config : usa
+FlaskApp --> MongoDBManager : usa
+FlaskApp --> AuthController : registra
+FlaskApp --> DashboardController : registra
+FlaskApp --> OfertasController : registra
+
+Flask --> Blueprint : contiene
+
+note right of MongoDBManager
+  Gestiona todas las operaciones
+  con MongoDB:
+  - CRUD de ofertas
+  - Gestión de usuarios
+  - Estadísticas
+  - Logs de extracción
+end note
+
+note right of ScrapingService
+  Servicio independiente que:
+  - Extrae ofertas de portales
+  - Parsea HTML con BeautifulSoup
+  - Filtra por ubicación Tacna
+  - Guarda en MongoDB
+end note
+
+note right of Config
+  Configuración centralizada:
+  - Variables de entorno
+  - URIs de portales
+  - Parámetros de scraping
+  - Límites de paginación
+end note
+
+@enduml
+

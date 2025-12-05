@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 from bson import ObjectId
+from app.services.mock_data import MockData
 
 class MongoDBManager:
     def __init__(self, connection_string: str = None):
@@ -138,10 +139,36 @@ class MongoDBManager:
         Returns:
             Lista de ofertas
         """
+        # Función auxiliar para obtener y ordenar datos mock
+        def get_mock_ofertas_ordenadas():
+            try:
+                mock_ofertas = MockData.get_mock_ofertas()
+                self.logger.info(f"Obtenidas {len(mock_ofertas)} ofertas mock")
+                # Ordenar por fecha de creación (más recientes primero)
+                # Las fechas están en formato ISO string, así que podemos ordenarlas directamente
+                mock_ofertas.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+                filtered = MockData.filter_ofertas(mock_ofertas, filtros)
+                result = filtered[offset:offset + limit]
+                self.logger.info(f"Retornando {len(result)} ofertas mock (offset={offset}, limit={limit})")
+                return result
+            except Exception as e:
+                self.logger.error(f"Error obteniendo datos mock: {e}", exc_info=True)
+                return []
+        
         if not self._check_connection():
-            return []
+            # Usar datos de simulación cuando MongoDB no está disponible
+            self.logger.info("MongoDB no disponible, usando datos de simulación")
+            return get_mock_ofertas_ordenadas()
         
         try:
+            # Verificar si hay ofertas en la base de datos
+            total = self.ofertas_collection.count_documents({})
+            self.logger.info(f"Total de ofertas en BD: {total}")
+            if total == 0:
+                # Si no hay ofertas, usar datos de simulación
+                self.logger.info("Base de datos vacía, usando datos de simulación")
+                return get_mock_ofertas_ordenadas()
+            
             query = {}
             
             if filtros:
@@ -157,9 +184,14 @@ class MongoDBManager:
                 if filtros.get('modalidad'):
                     query['modalidad'] = filtros['modalidad']
                 
-                # Búsqueda de texto
+                # Búsqueda de texto (buscar en título, empresa, puesto)
                 if filtros.get('busqueda'):
-                    query['$text'] = {'$search': filtros['busqueda']}
+                    busqueda = filtros['busqueda']
+                    query['$or'] = [
+                        {'titulo_oferta': {'$regex': busqueda, '$options': 'i'}},
+                        {'empresa': {'$regex': busqueda, '$options': 'i'}},
+                        {'puesto': {'$regex': busqueda, '$options': 'i'}}
+                    ]
             
             # Ejecutar consulta con paginación
             cursor = self.ofertas_collection.find(query).sort('created_at', DESCENDING).skip(offset).limit(limit)
@@ -190,6 +222,12 @@ class MongoDBManager:
             Diccionario con los datos de la oferta o None
         """
         if not self._check_connection():
+            # Usar datos de simulación cuando MongoDB no está disponible
+            self.logger.info("MongoDB no disponible, usando datos de simulación")
+            mock_ofertas = MockData.get_mock_ofertas()
+            for oferta in mock_ofertas:
+                if oferta.get('id') == oferta_id or oferta.get('_id') == oferta_id:
+                    return oferta
             return None
         
         try:
@@ -218,7 +256,10 @@ class MongoDBManager:
             Número de ofertas
         """
         if not self._check_connection():
-            return 0
+            # Usar datos de simulación cuando MongoDB no está disponible
+            mock_ofertas = MockData.get_mock_ofertas()
+            filtered = MockData.filter_ofertas(mock_ofertas, filtros)
+            return len(filtered)
         
         try:
             query = {}
@@ -246,17 +287,23 @@ class MongoDBManager:
             Diccionario con estadísticas
         """
         if not self._check_connection():
-            return {
-                'total_ofertas': 0,
-                'por_nivel': {},
-                'por_modalidad': {},
-                'por_fuente': {},
-                'top_empresas': {}
-            }
+            # Usar datos de simulación cuando MongoDB no está disponible
+            self.logger.info("MongoDB no disponible, usando estadísticas de simulación")
+            stats = MockData.get_mock_estadisticas()
+            self.logger.info(f"Estadísticas mock: {stats}")
+            return stats
         
         try:
             # Total de ofertas
             total_ofertas = self.ofertas_collection.count_documents({})
+            self.logger.info(f"Total de ofertas en BD para estadísticas: {total_ofertas}")
+            
+            # Si no hay ofertas, usar datos de simulación
+            if total_ofertas == 0:
+                self.logger.info("Base de datos vacía, usando estadísticas de simulación")
+                stats = MockData.get_mock_estadisticas()
+                self.logger.info(f"Estadísticas mock: {stats}")
+                return stats
             
             # Ofertas por nivel académico
             niveles = list(self.ofertas_collection.aggregate([
@@ -334,6 +381,11 @@ class MongoDBManager:
             Diccionario con los datos del usuario o None
         """
         if not self._check_connection():
+            # Usar datos de simulación cuando MongoDB no está disponible
+            # Solo para usuario admin en modo offline
+            if username == 'admin':
+                self.logger.info("MongoDB no disponible, usando usuario mock para admin")
+                return MockData.get_mock_usuario()
             return None
         
         try:

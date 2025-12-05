@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casos de Uso - Sistema de Ofertas Laborales para Tacna</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      color: #000;
+      background: #fff;
+    }
+    h1, h2, h3 {
+      color: #000;
+    }
+    h1 {
+      border-bottom: 3px solid #000;
+      padding-bottom: 10px;
+      text-align: center;
+    }
+    h2 {
+      border-bottom: 2px solid #000;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+    h3 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #fff;
+      border: none;
+      font-weight: bold;
+    }
+    h3:first-of-type {
+      margin-top: 0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 0.95rem;
+    }
+    table, th, td {
+      border: 1px solid #000;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      background: #fff;
+    }
+    th {
+      background: #fff;
+      font-weight: bold;
+    }
+    .flow-table {
+      margin: 0;
+    }
+    .flow-table th {
+      width: 50%;
+      background: #fff;
+    }
+    .step-number {
+      font-weight: bold;
+    }
+    .diagram-container {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #000;
+      background: #fff;
+    }
+    .requirement-section {
+      margin: 40px 0;
+      border: 1px solid #000;
+      background: #fff;
+      page-break-inside: avoid;
+      padding: 0;
+    }
+    .section-header {
+      background: #fff;
+      color: #000;
+      padding: 15px;
+      margin: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      border: none;
+    }
+    .section-content {
+      padding: 0 15px 15px 15px;
+      margin: 0;
+    }
+    .subsection {
+      margin: 0;
+      padding: 0;
+    }
+    code {
+      background: #fff;
+      padding: 2px 6px;
+      border: 1px solid #000;
+      font-family: 'Courier New', monospace;
+      display: block;
+      white-space: pre-wrap;
+      margin: 10px 0;
+    }
+    pre {
+      margin: 0;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ESPECIFICACIÓN DE CASOS DE USO</h1>
+  <h2 style="text-align: center;">Sistema de Ofertas Laborales para Tacna</h2>
+
+  <div class="diagram-container">
+    <h3>Diagrama de Casos de Uso</h3>
+    <pre><code>@startuml
+left to right direction
+
+actor "Personal de RSU" as Usuario
+
+rectangle "Sistema de Ofertas Laborales para Tacna" {
+  
+  usecase "UC-01: Iniciar Sesión\n(RF-01)" as UC01
+  usecase "UC-02: Cerrar Sesión\n(RF-01)" as UC02
+  
+  usecase "UC-03: Visualizar Dashboard\n(RF-03)" as UC03
+  
+  usecase "UC-04: Ejecutar Extracción de Ofertas\n(RF-02)" as UC04
+  
+  usecase "UC-05: Ver Detalle de Oferta\n(RF-04)" as UC05
+  
+  usecase "UC-06: Consultar Estadísticas\n(RF-05)" as UC06
+}
+
+Usuario --> UC01
+Usuario --> UC02
+Usuario --> UC03
+Usuario --> UC04
+Usuario --> UC05
+Usuario --> UC06
+
+UC02 ..> UC01 : <<include>>
+UC03 ..> UC01 : <<include>>
+UC04 ..> UC01 : <<include>>
+UC05 ..> UC01 : <<include>>
+UC06 ..> UC01 : <<include>>
+
+@enduml</code></pre>
+  </div>
+
+  <!-- RF-01: Autenticación de Usuarios -->
+  <div class="requirement-section">
+    <div class="section-header">RF-01: Autenticación de Usuarios</div>
+    
+    <div class="section-content">
+      <table>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">INFORMACIÓN GENERAL</th>
+        </tr>
+        <tr>
+          <th style="width: 20%;">ID</th>
+          <td>RF-01</td>
+        </tr>
+        <tr>
+          <th>NOMBRE</th>
+          <td>Autenticación de Usuarios</td>
+        </tr>
+        <tr>
+          <th>ACTOR(ES)</th>
+          <td>Personal de RSU (Usuario Administrador)</td>
+        </tr>
+        <tr>
+          <th>OBJETIVO</th>
+          <td>Este caso de uso contiene las acciones principales sobre la autenticación de usuarios, tales como: "iniciar sesión" y "cerrar sesión". Permite que los usuarios autorizados accedan al sistema mediante validación de credenciales almacenadas en MongoDB y mantengan una sesión activa durante su navegación.</td>
+        </tr>
+        <tr>
+          <th>PRECONDICIONES</th>
+          <td>El usuario debe tener credenciales válidas (nombre de usuario y contraseña) registradas en el sistema. El sistema debe tener acceso a la base de datos MongoDB.</td>
+        </tr>
+        <tr>
+          <th>POSCONDICIONES</th>
+          <td>Luego de la finalización de la actividad, el sistema almacenará la información sobre la sesión del usuario y permitirá el acceso a las funcionalidades protegidas del sistema.</td>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO DE EVENTOS</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+            <th style="width: 50%;">ACTOR</th>
+            <th style="width: 50%;">SISTEMA</th>
+          </tr>
+          <tr>
+            <td><strong>1.</strong> El usuario accede a la URL del sistema.</td>
+            <td><strong>2.</strong> El sistema muestra la página de inicio de sesión con los campos "Usuario" y "Contraseña", y un botón "Iniciar Sesión".</td>
+          </tr>
+          <tr>
+            <td><strong>3.</strong> El usuario ingresa su nombre de usuario y contraseña en los campos correspondientes.</td>
+            <td><strong>4.</strong> El sistema recibe las credenciales ingresadas.</td>
+          </tr>
+          <tr>
+            <td><strong>5.</strong> El usuario selecciona la opción "Iniciar Sesión".</td>
+            <td><strong>6.</strong> El sistema valida las credenciales consultando la base de datos MongoDB, comparando el hash de la contraseña almacenada con la contraseña ingresada.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>7.</strong> Si las credenciales son válidas, el sistema crea una sesión activa, almacena el ID de usuario y el nombre de usuario en la sesión, y redirige al usuario al dashboard principal.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>8.</strong> Si las credenciales no son válidas, el sistema muestra el flujo alternativo 01.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>9.</strong> Si MongoDB no está disponible, el sistema muestra el flujo alternativo 02.</td>
+          </tr>
+          <tr>
+            <td><strong>10.</strong> El usuario navega por el sistema utilizando las funcionalidades disponibles.</td>
+            <td><strong>11.</strong> El sistema mantiene la sesión activa y permite el acceso a rutas protegidas mediante el decorador <code>login_required</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>12.</strong> El usuario selecciona la opción "Cerrar Sesión".</td>
+            <td><strong>13.</strong> El sistema limpia la sesión del usuario, elimina todos los datos de sesión almacenados, muestra un mensaje de confirmación "Sesión cerrada exitosamente" y redirige al usuario a la página de inicio de sesión.</td>
+          </tr>
+        <tr>
+          <td></td>
+          <td><strong>14.</strong> Fin de la Actividad.</td>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 01: Credenciales Inválidas</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+          <td><strong>1.</strong> Selección de la opción "Iniciar Sesión" con credenciales incorrectas.</td>
+          <td><strong>2.</strong> El sistema valida las credenciales ingresadas. Si las credenciales no coinciden con ningún usuario registrado o la contraseña es incorrecta, el sistema muestra un mensaje de error: "Usuario o contraseña incorrectos".</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>3.</strong> El caso de uso ha terminado. El usuario permanece en la página de inicio de sesión y puede intentar nuevamente.</td>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 02: MongoDB No Disponible</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+          <td><strong>1.</strong> El usuario intenta iniciar sesión cuando MongoDB no está disponible.</td>
+          <td><strong>2.</strong> El sistema detecta que no hay conexión a MongoDB. Si el usuario ingresa las credenciales de emergencia (admin/admin123), el sistema crea una sesión offline con el mensaje: "Inicio de sesión en modo sin conexión (MongoDB no disponible)".</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>3.</strong> Si el usuario ingresa otras credenciales, el sistema muestra el mensaje: "MongoDB no está disponible. Solo se permite admin/admin123 en modo sin conexión."</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>4.</strong> El caso de uso continúa con capacidades limitadas (modo offline).</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- RF-02: Extracción Automática de Ofertas -->
+  <div class="requirement-section">
+    <div class="section-header">RF-02: Extracción Automática de Ofertas (Scraping)</div>
+    
+    <div class="section-content">
+      <table>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">INFORMACIÓN GENERAL</th>
+        </tr>
+        <tr>
+          <th style="width: 20%;">ID</th>
+          <td>RF-02</td>
+        </tr>
+          <tr>
+            <th>NOMBRE</th>
+            <td>Extracción Automática de Ofertas</td>
+          </tr>
+          <tr>
+            <th>ACTOR(ES)</th>
+            <td>Personal de RSU (Usuario Administrador)</td>
+          </tr>
+          <tr>
+            <th>OBJETIVO</th>
+            <td>Este caso de uso permite ejecutar la extracción automática de ofertas laborales desde portales de empleo configurados (computrabajo, bumeran, indeed, trabajos.pe), filtrando automáticamente por ubicación (Tacna) y evitando duplicados. El sistema muestra un resumen de la extracción con el número de ofertas nuevas, actualizadas y errores encontrados.</td>
+          </tr>
+          <tr>
+            <th>PRECONDICIONES</th>
+            <td>El usuario debe estar autenticado en el sistema. El sistema debe tener acceso a Internet y a la base de datos MongoDB. Los portales de empleo deben estar accesibles.</td>
+          </tr>
+          <tr>
+            <th>POSCONDICIONES</th>
+            <td>Luego de la finalización de la actividad, el sistema almacenará las nuevas ofertas en MongoDB, actualizará las ofertas existentes y registrará las estadísticas de la extracción (nuevas, actualizadas, errores por fuente).</td>
+          </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO DE EVENTOS</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+          <td><strong>1.</strong> El usuario autenticado accede al dashboard del sistema.</td>
+            <td><strong>2.</strong> El sistema muestra el dashboard con las últimas ofertas y un botón "Extraer Ofertas" o similar.</td>
+          </tr>
+          <tr>
+            <td><strong>3.</strong> El usuario selecciona la opción "Extraer Ofertas" o ejecuta la acción desde el menú correspondiente.</td>
+            <td><strong>4.</strong> El sistema valida que el usuario esté autenticado y que MongoDB esté disponible. Si MongoDB no está disponible, se muestra el flujo alternativo 01.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>5.</strong> El sistema inicia el proceso de scraping, invocando al <code>ScrapingService</code>.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>6.</strong> Para cada portal configurado en <code>Config.PORTALS</code>, el sistema realiza una petición HTTP utilizando la librería <code>requests</code> para obtener el contenido HTML de la página de ofertas.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>7.</strong> El sistema parsea el HTML utilizando <code>BeautifulSoup</code>, identificando los elementos que contienen información de ofertas (título, empresa, ubicación, nivel académico, modalidad, enlace).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>8.</strong> El sistema aplica filtros automáticos para asegurar que las ofertas sean relevantes para Tacna (filtrado por ubicación y palabras clave relacionadas).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>9.</strong> Para cada oferta encontrada, el sistema verifica si ya existe en MongoDB comparando identificadores o campos únicos. Si existe, actualiza la información. Si no existe, la inserta como nueva.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>10.</strong> El sistema registra estadísticas por portal: número de ofertas nuevas, actualizadas y errores encontrados durante el proceso.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>11.</strong> Si ocurre un error durante el scraping de un portal específico (por ejemplo, el portal no responde o cambió su estructura HTML), el sistema registra el error pero continúa con los demás portales. Se muestra el flujo alternativo 02.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>12.</strong> Una vez completado el proceso para todos los portales, el sistema genera un resumen con: total de ofertas nuevas, total de ofertas actualizadas, total de errores y desglose por fuente.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>13.</strong> El sistema muestra al usuario un mensaje de confirmación con el resumen de la extracción, por ejemplo: "Extracción completada: X nuevas ofertas, Y actualizadas, Z errores".</td>
+          </tr>
+          <tr>
+            <td><strong>14.</strong> El usuario visualiza el resumen y puede acceder al listado actualizado de ofertas.</td>
+            <td><strong>15.</strong> Fin de la Actividad.</td>
+          </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 01: MongoDB No Disponible</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+          <td><strong>1.</strong> El usuario intenta ejecutar la extracción cuando MongoDB no está disponible.</td>
+          <td><strong>2.</strong> El sistema detecta que no hay conexión a MongoDB y muestra un mensaje de error: "MongoDB no está disponible. Para extraer ofertas necesitas instalar MongoDB."</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>3.</strong> El caso de uso ha terminado. El usuario no puede ejecutar la extracción hasta que MongoDB esté disponible.</td>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 02: Error en el Scraping de un Portal</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>1.</strong> Durante el proceso de scraping, el sistema intenta acceder a un portal específico pero encuentra un error (portal no responde, timeout, cambio en la estructura HTML, etc.).</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>2.</strong> El sistema registra el error en los logs, incrementa el contador de errores para ese portal y continúa con el siguiente portal configurado.</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>3.</strong> Al finalizar el proceso, el sistema incluye en el resumen el número de errores encontrados por portal, permitiendo al usuario identificar qué portales presentaron problemas.</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><strong>4.</strong> El caso de uso continúa normalmente, procesando los portales restantes.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- RF-03: Visualización de Dashboard -->
+  <div class="requirement-section">
+    <div class="section-header">RF-03: Visualización de Dashboard</div>
+    
+    <div class="section-content">
+      <table>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">INFORMACIÓN GENERAL</th>
+        </tr>
+        <tr>
+          <th style="width: 20%;">ID</th>
+          <td>RF-03</td>
+        </tr>
+          <tr>
+            <th>NOMBRE</th>
+            <td>Visualización de Dashboard</td>
+          </tr>
+          <tr>
+            <th>ACTOR(ES)</th>
+            <td>Personal de RSU (Usuario Administrador)</td>
+          </tr>
+          <tr>
+            <th>OBJETIVO</th>
+            <td>Este caso de uso permite al usuario visualizar un panel principal con las últimas ofertas laborales registradas en el sistema y estadísticas básicas (total de ofertas, distribución por fuente), actualizando la información en tiempo real desde la base de datos MongoDB.</td>
+          </tr>
+          <tr>
+            <th>PRECONDICIONES</th>
+            <td>El usuario debe estar autenticado en el sistema. El sistema debe tener acceso a la base de datos MongoDB (o funcionar en modo offline limitado).</td>
+          </tr>
+          <tr>
+            <th>POSCONDICIONES</th>
+            <td>Luego de la finalización de la actividad, el usuario habrá visualizado el resumen de ofertas y estadísticas, pudiendo acceder a funcionalidades adicionales como ver el detalle de una oferta o ejecutar una nueva extracción.</td>
+          </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO DE EVENTOS</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+            <td><strong>1.</strong> El usuario autenticado accede al sistema o selecciona la opción "Dashboard" desde el menú de navegación.</td>
+            <td><strong>2.</strong> El sistema valida que el usuario esté autenticado mediante el decorador <code>login_required</code>. Si no está autenticado, redirige al login.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El sistema consulta la base de datos MongoDB para obtener las últimas 10 ofertas laborales ordenadas por fecha de creación (más recientes primero).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>4.</strong> El sistema ejecuta una agregación en MongoDB para calcular el total de ofertas registradas y la distribución por fuente (portal de empleo).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>5.</strong> Si MongoDB no está disponible, el sistema muestra el flujo alternativo 01.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>6.</strong> El sistema renderiza la plantilla <code>dashboard.html</code> con la información obtenida: listado de últimas ofertas (título, empresa, fecha) y estadísticas básicas (total de ofertas, gráfico o tabla de distribución por fuente).</td>
+          </tr>
+          <tr>
+            <td><strong>7.</strong> El usuario visualiza el dashboard con las últimas ofertas y las estadísticas.</td>
+            <td><strong>8.</strong> El sistema muestra opciones adicionales como: "Ver todas las ofertas", "Extraer nuevas ofertas", "Ver estadísticas detalladas".</td>
+          </tr>
+          <tr>
+            <td><strong>9.</strong> El usuario puede seleccionar una oferta del listado para ver su detalle, o puede navegar a otras secciones del sistema.</td>
+            <td><strong>10.</strong> Fin de la Actividad.</td>
+          </tr>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 01: MongoDB No Disponible</h3>
+        <table class="flow-table">
+          <tr>
+            <th style="width: 50%;">ACTOR</th>
+            <th style="width: 50%;">SISTEMA</th>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>1.</strong> El sistema detecta que MongoDB no está disponible al intentar consultar las ofertas.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>2.</strong> El sistema renderiza el dashboard con valores por defecto: listado de ofertas vacío, total de ofertas = 0, y distribución por fuente vacía.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El sistema muestra un mensaje informativo indicando que la base de datos no está disponible y que el sistema está funcionando en modo limitado.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>4.</strong> El caso de uso continúa, permitiendo al usuario navegar por la interfaz aunque sin datos reales.</td>
+          </tr>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- RF-04: Visualización de Detalle de Oferta -->
+  <div class="requirement-section">
+    <div class="section-header">RF-04: Visualización de Detalle de Oferta</div>
+    
+    <div class="section-content">
+      <h3>INFORMACIÓN GENERAL</h3>
+        <table>
+          <tr>
+            <th style="width: 20%;">ID</th>
+            <td>RF-04</td>
+          </tr>
+          <tr>
+            <th>NOMBRE</th>
+            <td>Visualización de Detalle de Oferta</td>
+          </tr>
+          <tr>
+            <th>ACTOR(ES)</th>
+            <td>Personal de RSU (Usuario Administrador)</td>
+          </tr>
+          <tr>
+            <th>OBJETIVO</th>
+            <td>Este caso de uso permite al usuario ver el detalle completo de una oferta laboral seleccionada, mostrando información como: título del puesto, empresa, ubicación, nivel académico requerido, modalidad de trabajo, enlace al portal original y fecha de registro en el sistema.</td>
+          </tr>
+          <tr>
+            <th>PRECONDICIONES</th>
+            <td>El usuario debe estar autenticado en el sistema. Debe existir al menos una oferta laboral en el sistema o el usuario debe haber seleccionado una oferta desde el dashboard o listado de ofertas.</td>
+          </tr>
+          <tr>
+            <th>POSCONDICIONES</th>
+            <td>Luego de la finalización de la actividad, el usuario habrá visualizado toda la información disponible de la oferta laboral seleccionada y podrá acceder al enlace original del portal de empleo si lo desea.</td>
+          </tr>
+          </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO DE EVENTOS</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+            <td><strong>1.</strong> El usuario autenticado navega por el dashboard o listado de ofertas y selecciona una oferta específica haciendo clic en su título o en un botón "Ver detalle".</td>
+            <td><strong>2.</strong> El sistema valida que el usuario esté autenticado y recibe el identificador de la oferta seleccionada (ID o campo único).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El sistema consulta la base de datos MongoDB utilizando el método <code>get_oferta_by_id()</code> del <code>MongoDBManager</code>, buscando la oferta por su ID o identificador único.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>4.</strong> Si la oferta no se encuentra en la base de datos, el sistema muestra el flujo alternativo 01.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>5.</strong> Si la oferta existe, el sistema recupera todos los campos asociados: título del puesto, nombre de la empresa, ubicación (ciudad), nivel académico requerido, modalidad de trabajo (presencial, remoto, híbrido), descripción (si está disponible), enlace al portal original, fuente (portal de empleo), fecha de registro en el sistema.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>6.</strong> El sistema renderiza la plantilla <code>ver_oferta.html</code> con toda la información de la oferta, organizada de manera clara y legible.</td>
+          </tr>
+          <tr>
+            <td><strong>7.</strong> El usuario visualiza el detalle completo de la oferta, incluyendo todos los campos disponibles.</td>
+            <td><strong>8.</strong> El sistema muestra un enlace o botón que permite al usuario acceder al portal original donde se publicó la oferta (enlace externo).</td>
+          </tr>
+          <tr>
+            <td><strong>9.</strong> El usuario puede seleccionar el enlace para abrir la oferta en el portal original, o puede regresar al listado de ofertas o al dashboard.</td>
+            <td><strong>10.</strong> Fin de la Actividad.</td>
+          </tr>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 01: Oferta No Encontrada</h3>
+        <table class="flow-table">
+          <tr>
+            <th style="width: 50%;">ACTOR</th>
+            <th style="width: 50%;">SISTEMA</th>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>1.</strong> El sistema intenta buscar la oferta con el identificador proporcionado pero no la encuentra en la base de datos (puede haber sido eliminada, el ID es incorrecto, o hay un error en la consulta).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>2.</strong> El sistema muestra un mensaje de error: "Oferta no encontrada" y redirige al usuario al listado de ofertas.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El caso de uso ha terminado. El usuario puede seleccionar otra oferta del listado.</td>
+          </tr>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- RF-05: Generación de Estadísticas -->
+  <div class="requirement-section">
+    <div class="section-header">RF-05: Generación de Estadísticas</div>
+    
+    <div class="section-content">
+      <h3>INFORMACIÓN GENERAL</h3>
+        <table>
+          <tr>
+            <th style="width: 20%;">ID</th>
+            <td>RF-05</td>
+          </tr>
+          <tr>
+            <th>NOMBRE</th>
+            <td>Generación de Estadísticas</td>
+          </tr>
+          <tr>
+            <th>ACTOR(ES)</th>
+            <td>Personal de RSU (Usuario Administrador)</td>
+          </tr>
+          <tr>
+            <th>OBJETIVO</th>
+            <td>Este caso de uso permite al usuario consultar estadísticas agregadas sobre las ofertas laborales almacenadas en el sistema, incluyendo: total de ofertas registradas, distribución por nivel académico, distribución por modalidad de trabajo, distribución por fuente (portal de empleo) y top empresas con más ofertas publicadas.</td>
+          </tr>
+          <tr>
+            <th>PRECONDICIONES</th>
+            <td>El usuario debe estar autenticado en el sistema. El sistema debe tener acceso a la base de datos MongoDB con ofertas registradas.</td>
+          </tr>
+          <tr>
+            <th>POSCONDICIONES</th>
+            <td>Luego de la finalización de la actividad, el usuario habrá visualizado las estadísticas del sistema, lo que le permitirá tomar decisiones informadas sobre el mercado laboral en Tacna y la efectividad de las fuentes de datos.</td>
+          </tr>
+          </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO DE EVENTOS</th>
+        </tr>
+        <tr>
+          <th style="width: 50%;">ACTOR</th>
+          <th style="width: 50%;">SISTEMA</th>
+        </tr>
+        <tr>
+            <td><strong>1.</strong> El usuario autenticado selecciona la opción "Estadísticas" desde el menú de navegación o desde el dashboard.</td>
+            <td><strong>2.</strong> El sistema valida que el usuario esté autenticado y redirige a la página de estadísticas.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El sistema consulta la base de datos MongoDB y ejecuta agregaciones utilizando el método <code>get_estadisticas()</code> del <code>MongoDBManager</code>.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>4.</strong> El sistema calcula el total de ofertas registradas mediante <code>count_documents({})</code> en la colección de ofertas.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>5.</strong> El sistema ejecuta una agregación para agrupar ofertas por nivel académico y contar cuántas ofertas hay en cada categoría (Practicante, Bachiller, Profesional, etc.).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>6.</strong> El sistema ejecuta una agregación para agrupar ofertas por modalidad de trabajo y contar cuántas ofertas hay en cada modalidad (Presencial, Remoto, Híbrido, etc.).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>7.</strong> El sistema ejecuta una agregación para agrupar ofertas por fuente (portal de empleo) y contar cuántas ofertas provienen de cada portal (computrabajo, bumeran, indeed, trabajos.pe).</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>8.</strong> El sistema ejecuta una agregación para identificar las top 10 empresas con más ofertas publicadas, ordenadas por cantidad descendente.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>9.</strong> Si MongoDB no está disponible o no hay ofertas registradas, el sistema muestra el flujo alternativo 01.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>10.</strong> El sistema renderiza la plantilla <code>estadisticas.html</code> con todas las estadísticas calculadas, presentándolas en formato de tablas, gráficos o listas según el diseño de la interfaz.</td>
+          </tr>
+          <tr>
+            <td><strong>11.</strong> El usuario visualiza las estadísticas: total de ofertas, distribución por nivel académico, distribución por modalidad, distribución por fuente y top empresas.</td>
+            <td><strong>12.</strong> El sistema muestra la información de manera clara y organizada, facilitando la interpretación de los datos.</td>
+          </tr>
+          <tr>
+            <td><strong>13.</strong> El usuario puede analizar las estadísticas para identificar tendencias del mercado laboral en Tacna, la efectividad de cada portal de empleo y las empresas más activas en la publicación de ofertas.</td>
+            <td><strong>14.</strong> Fin de la Actividad.</td>
+          </tr>
+        </tr>
+        <tr>
+          <th colspan="2" style="text-align: center; font-size: 1.1em; padding: 10px;">FLUJO ALTERNATIVO 01: Sin Datos o MongoDB No Disponible</h3>
+        <table class="flow-table">
+          <tr>
+            <th style="width: 50%;">ACTOR</th>
+            <th style="width: 50%;">SISTEMA</th>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>1.</strong> El sistema intenta consultar las estadísticas pero detecta que MongoDB no está disponible o que no hay ofertas registradas en la base de datos.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>2.</strong> El sistema renderiza la página de estadísticas con valores por defecto: total de ofertas = 0, todas las distribuciones vacías (por nivel, modalidad, fuente) y lista de top empresas vacía.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>3.</strong> El sistema muestra un mensaje informativo indicando que no hay datos disponibles o que la base de datos no está accesible, sugiriendo ejecutar una extracción de ofertas si es necesario.</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><strong>4.</strong> El caso de uso continúa, permitiendo al usuario visualizar la estructura de estadísticas aunque sin datos reales.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+@startuml
+!theme plain
+skinparam roundcorner 20
+skinparam linetype ortho
+
+title Diagrama de Base de Datos - Sistema de Ofertas Laborales para Tacna\n(MongoDB - NoSQL Document Database)
+
+database "ofertas_laborales" {
+  
+  entity "ofertas" as ofertas {
+    * _id : ObjectId <<PK>>
+    --
+    * id : String <<UNIQUE>>
+    * titulo_oferta : String
+    * empresa : String
+    * nivel_academico : String
+    * puesto : String
+    * experiencia_minima_anios : String
+    * conocimientos_clave : String
+    * responsabilidades_breve : String
+    * modalidad : String
+    * ubicacion : String
+    * jornada : String
+    * salario : String
+    * fecha_publicacion : String
+    fecha_cierre : String
+    * como_postular : String
+    * url_oferta : String
+    * documentos_requeridos : String
+    * contacto : String
+    * etiquetas : String
+    * fuente : String
+    fecha_estimacion : Boolean
+    * created_at : DateTime
+    * updated_at : DateTime
+    --
+    ** Índices: **
+    - id (único)
+    - empresa
+    - nivel_academico
+    - modalidad
+    - fuente
+    - fecha_publicacion (descendente)
+    - created_at (descendente)
+    - texto: titulo_oferta, puesto,\nconocimientos_clave,\nresponsabilidades_breve
+  }
+  
+  entity "usuarios" as usuarios {
+    * _id : ObjectId <<PK>>
+    --
+    * username : String <<UNIQUE>>
+    * password_hash : String
+    * email : String
+    * created_at : DateTime
+    * is_active : Boolean
+    --
+    ** Índices: **
+    - username (único)
+  }
+  
+  entity "logs_extraccion" as logs {
+    * _id : ObjectId <<PK>>
+    --
+    * fecha_ejecucion : DateTime
+    * fuente : String
+    * estadisticas : Object {
+      nuevas : Number
+      actualizadas : Number
+      errores : Number
+      total_encontradas : Number
+    }
+    --
+    ** Índices: **
+    - fecha_ejecucion (descendente)
+  }
+}
+
+note right of ofertas
+  **Colección Principal**
+  
+  Almacena todas las ofertas
+  laborales extraídas de los
+  portales de empleo.
+  
+  Campos principales:
+  - Información de la oferta
+  - Datos de la empresa
+  - Requisitos académicos
+  - Modalidad y ubicación
+  - Enlace al portal original
+end note
+
+note right of usuarios
+  **Gestión de Usuarios**
+  
+  Almacena credenciales de
+  usuarios autorizados del
+  sistema (Personal de RSU).
+  
+  Contraseñas almacenadas
+  con hash (Werkzeug).
+end note
+
+note right of logs
+  **Registro de Extracciones**
+  
+  Almacena logs de cada
+  ejecución del proceso de
+  scraping con estadísticas
+  por fuente.
+end note
+
+' Relaciones conceptuales (MongoDB no tiene relaciones formales)
+ofertas }o--|| logs : "registra en"
+usuarios ||--o{ ofertas : "consulta"
+
+@enduml
+

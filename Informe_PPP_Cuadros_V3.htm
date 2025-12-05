@@ -208,40 +208,94 @@
 <h2>2.3. REQUERIMIENTOS FUNCIONALES</h2>
 <p>
   Los <b>requerimientos funcionales</b> describen los servicios y comportamientos observables que el sistema
-  debe proporcionar desde la perspectiva del usuario. Responden a la pregunta “¿qué debe hacer el sistema?”.
-  En el Sistema de Ofertas Laborales para Tacna, entre los requerimientos funcionales principales se
-  encuentran:
+  debe proporcionar desde la perspectiva del usuario.
 </p>
-<ul>
-  <li>Permitir el inicio y cierre de sesión de usuarios autorizados (personal de RSU).</li>
-  <li>Mostrar un <b>dashboard</b> con las últimas ofertas registradas y estadísticas generales.</li>
-  <li>Listar las ofertas laborales almacenadas aplicando filtros por texto libre, empresa, nivel académico y modalidad.</li>
-  <li>Visualizar el detalle completo de una oferta específica.</li>
-  <li>Ejecutar el proceso de <b>extracción (scraping)</b> desde los portales de empleo configurados.</li>
-  <li>Generar estadísticas agregadas por fuente, nivel académico, modalidad y empresa.</li>
-</ul>
+
+<table>
+  <caption><b>Cuadro de Requerimientos Funcionales</b></caption>
+  <tr>
+    <th>ID</th>
+    <th>Requerimiento Funcional</th>
+    <th>Descripción</th>
+    <th>Prioridad</th>
+  </tr>
+  <tr>
+    <td>RF-01</td>
+    <td>Autenticación de Usuarios</td>
+    <td>El sistema debe permitir que los usuarios autorizados (personal de RSU) inicien sesión con nombre de usuario y contraseña, validando las credenciales contra la base de datos MongoDB. Debe mantener una sesión activa y permitir cerrar sesión de forma segura.</td>
+    <td>Alta</td>
+  </tr>
+  <tr>
+    <td>RF-02</td>
+    <td>Extracción Automática de Ofertas (Scraping)</td>
+    <td>El sistema debe permitir ejecutar la extracción automática de ofertas desde portales de empleo configurados (computrabajo, bumeran, indeed, trabajos.pe), filtrando automáticamente por ubicación (Tacna) y evitando duplicados. Debe mostrar un resumen de la extracción (nuevas, actualizadas, errores).</td>
+    <td>Alta</td>
+  </tr>
+  <tr>
+    <td>RF-03</td>
+    <td>Visualización de Dashboard</td>
+    <td>El sistema debe mostrar un panel principal con las últimas ofertas laborales registradas y estadísticas básicas (total de ofertas, distribución por fuente), actualizando la información en tiempo real desde la base de datos.</td>
+    <td>Alta</td>
+  </tr>
+  <tr>
+    <td>RF-04</td>
+    <td>Visualización de Detalle de Oferta</td>
+    <td>El sistema debe permitir ver el detalle completo de una oferta laboral seleccionada, mostrando información como: título, empresa, ubicación, nivel académico, modalidad, enlace al portal original y fecha de registro.</td>
+    <td>Media</td>
+  </tr>
+  <tr>
+    <td>RF-05</td>
+    <td>Generación de Estadísticas</td>
+    <td>El sistema debe generar estadísticas agregadas sobre: total de ofertas registradas, distribución por nivel académico, distribución por modalidad de trabajo, distribución por fuente (portal de empleo) y top empresas con más ofertas.</td>
+    <td>Media</td>
+  </tr>
+</table>
+
 <p>
   Estos requerimientos funcionales fueron priorizados y refinados en el SRS, sirviendo de base para el
   diseño de los casos de uso, los diagramas de procesos y el plan de pruebas del sistema.
 </p>
 
 <h2>2.4. REQUERIMIENTOS NO FUNCIONALES</h2>
-<p>
-  Los <b>requerimientos no funcionales</b> especifican criterios de calidad y restricciones bajo las cuales
-  el sistema debe operar. No describen funcionalidades específicas, sino propiedades tales como rendimiento,
-  seguridad, usabilidad y mantenibilidad. En el contexto del sistema desarrollado, destacan los siguientes:
-</p>
-<ul>
-  <li><b>Rendimiento:</b> el sistema debe responder a las peticiones de listado y detalle de ofertas en tiempos aceptables para el usuario (segundos).</li>
-  <li><b>Disponibilidad:</b> la aplicación debe estar disponible durante el horario laboral de la Oficina de RSU, minimizando tiempos de inactividad.</li>
-  <li><b>Seguridad:</b> las contraseñas se almacenan mediante hashing y las rutas críticas están protegidas por autenticación.</li>
-  <li><b>Usabilidad:</b> la interfaz debe ser clara, intuitiva y consistente, dirigida a usuarios no técnicos del ámbito administrativo.</li>
-  <li><b>Mantenibilidad:</b> la arquitectura por capas y el uso de servicios separados deben facilitar la incorporación de nuevas fuentes de empleo o criterios de filtrado.</li>
-</ul>
+
+<table>
+  <caption><b>Cuadro de Requerimientos No Funcionales</b></caption>
+  <tr>
+    <th>ID</th>
+    <th>Categoría</th>
+    <th>Requerimiento No Funcional</th>
+    <th>Especificación</th>
+  </tr>
+  <tr>
+    <td>RNF-01</td>
+    <td>Rendimiento</td>
+    <td>Tiempo de Respuesta</td>
+    <td>El sistema debe responder a las peticiones de listado y detalle de ofertas en tiempos menores a 3 segundos para consultas estándar. El proceso de scraping debe completarse en un tiempo máximo de 10 minutos para todos los portales configurados.</td>
+  </tr>
+  <tr>
+    <td>RNF-02</td>
+    <td>Seguridad</td>
+    <td>Protección de Credenciales y Control de Acceso</td>
+    <td>Las contraseñas deben almacenarse mediante funciones de hashing (Werkzeug) y nunca en texto plano. Las rutas críticas (dashboard, extracción, estadísticas) deben estar protegidas por autenticación mediante decoradores. El sistema debe implementar un mecanismo de sesiones seguras y redirigir automáticamente a usuarios no autenticados que intenten acceder a funcionalidades restringidas.</td>
+  </tr>
+  <tr>
+    <td>RNF-03</td>
+    <td>Usabilidad</td>
+    <td>Interfaz Intuitiva</td>
+    <td>La interfaz web debe ser clara, intuitiva y consistente, dirigida a usuarios no técnicos del ámbito administrativo. Debe requerir una capacitación mínima (2-3 horas) para su uso efectivo. El sistema debe proporcionar una navegación clara entre secciones y mensajes de retroalimentación apropiados para las acciones del usuario.</td>
+  </tr>
+</table>
+
 <p>
   Estos requerimientos no funcionales orientan decisiones de diseño (por ejemplo, elección de tecnologías,
   estructuras de datos y patrones arquitectónicos) y sirven como referencia al evaluar la calidad del
   sistema desarrollado.
+</p>
+
+<p>
+  El enfoque incremental permitió que el SRS no fuera un artefacto estático, sino un documento vivo que se
+  fue ajustando conforme se obtenía experiencia con el sistema, manteniendo siempre una traza clara entre
+  los requisitos establecidos y las funcionalidades implementadas.
 </p>
 
 <h2>2.5. DOCUMENTO SAD (Software Architecture Document)</h2>
@@ -451,27 +505,349 @@
 </p>
 
 <h4>4.1.1.6. Factibilidad</h4>
+
+<h5>I. Estudio de Factibilidad</h5>
+
+<h5>a) Factibilidad Técnica</h5>
 <p>
-  La factibilidad del proyecto se analizó en tres dimensiones:
+  Para el desarrollo del Sistema de Ofertas Laborales para Tacna se requieren los siguientes elementos técnicos:
+</p>
+<ul>
+  <li>1 laptop o computadora para desarrollo del sistema (mínimo 8GB RAM, procesador moderno).</li>
+  <li>Sistema operativo (Windows 10/11, Linux o macOS) con Python 3.8+ instalado.</li>
+  <li>MongoDB (versión Community, gratuita) para base de datos.</li>
+  <li>Acceso a Internet estable para desarrollo, pruebas y scraping de portales.</li>
+  <li>Servidor web para despliegue (puede ser servidor local de la universidad o hosting en la nube).</li>
+  <li>Herramientas de desarrollo: editor de código (VS Code, PyCharm Community), Git para control de versiones.</li>
+</ul>
+<p>
+  Todas las tecnologías utilizadas (Python, Flask, MongoDB Community, requests, BeautifulSoup) son de código
+  abierto o disponen de versiones gratuitas, lo que garantiza la factibilidad técnica sin requerir inversiones
+  adicionales en licencias de software propietario.
+</p>
+
+<h5>b) Factibilidad Económica</h5>
+<p>
+  A continuación se presenta el análisis de costos del proyecto, desglosado por categorías:
+</p>
+
+<table>
+  <caption><b>Costos Generales</b></caption>
+  <tr>
+    <th>Concepto</th>
+    <th>Meses</th>
+    <th>Precio</th>
+    <th>Personal</th>
+    <th>Costo</th>
+  </tr>
+  <tr>
+    <td>Laptop para desarrollo</td>
+    <td>1</td>
+    <td>S./ 3,500.00</td>
+    <td>1</td>
+    <td>S./ 3,500.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right;"><b>Total Costos Generales:</b></td>
+    <td><b>S./ 3,500.00</b></td>
+  </tr>
+</table>
+
+<table>
+  <caption><b>Costos Operativos</b></caption>
+  <tr>
+    <th>Concepto</th>
+    <th>Meses</th>
+    <th>Precio</th>
+    <th>Personal</th>
+    <th>Costo</th>
+  </tr>
+  <tr>
+    <td>Dominio de página web (opcional, anual)</td>
+    <td>1</td>
+    <td>S./ 120.00</td>
+    <td>1</td>
+    <td>S./ 120.00</td>
+  </tr>
+  <tr>
+    <td>Hosting web / Servidor (mensual, opcional)</td>
+    <td>1</td>
+    <td>S./ 150.00</td>
+    <td>1</td>
+    <td>S./ 150.00</td>
+  </tr>
+  <tr>
+    <td>MongoDB Atlas (plan gratuito disponible)</td>
+    <td>1</td>
+    <td>S./ 0.00</td>
+    <td>1</td>
+    <td>S./ 0.00</td>
+  </tr>
+  <tr>
+    <td>Licencias de software (Python, Flask, etc. - gratuitas)</td>
+    <td>1</td>
+    <td>S./ 0.00</td>
+    <td>1</td>
+    <td>S./ 0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right;"><b>Total Costos Operativos:</b></td>
+    <td><b>S./ 270.00</b></td>
+  </tr>
+</table>
+
+<table>
+  <caption><b>Costos del Ambiente</b></caption>
+  <tr>
+    <th>Concepto</th>
+    <th>Meses</th>
+    <th>Precio</th>
+    <th>Personal</th>
+    <th>Costo</th>
+  </tr>
+  <tr>
+    <td>Agua</td>
+    <td>1</td>
+    <td>S./ 30.00</td>
+    <td>1</td>
+    <td>S./ 30.00</td>
+  </tr>
+  <tr>
+    <td>Luz (energía eléctrica)</td>
+    <td>1</td>
+    <td>S./ 50.00</td>
+    <td>1</td>
+    <td>S./ 50.00</td>
+  </tr>
+  <tr>
+    <td>Internet</td>
+    <td>1</td>
+    <td>S./ 860.00</td>
+    <td>1</td>
+    <td>S./ 860.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right;"><b>Total Costos del Ambiente:</b></td>
+    <td><b>S./ 940.00</b></td>
+  </tr>
+</table>
+
+<table>
+  <caption><b>Costos del Personal</b></caption>
+  <tr>
+    <th>Concepto</th>
+    <th>Meses</th>
+    <th>Precio</th>
+    <th>Personal</th>
+    <th>Costo</th>
+  </tr>
+  <tr>
+    <td>Practicante Pre-Profesional (desarrollador)</td>
+    <td>1</td>
+    <td>S./ 930.00</td>
+    <td>1</td>
+    <td>S./ 930.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right;"><b>Total Costos del Personal:</b></td>
+    <td><b>S./ 930.00</b></td>
+  </tr>
+</table>
+
+<table>
+  <caption><b>Costos Totales del Proyecto</b></caption>
+  <tr>
+    <th>Concepto</th>
+    <th>Meses</th>
+    <th>Costo</th>
+  </tr>
+  <tr>
+    <td>Costos Generales</td>
+    <td>1</td>
+    <td>S./ 3,500.00</td>
+  </tr>
+  <tr>
+    <td>Costos del Ambiente</td>
+    <td>1</td>
+    <td>S./ 940.00</td>
+  </tr>
+  <tr>
+    <td>Costos Operativos</td>
+    <td>1</td>
+    <td>S./ 270.00</td>
+  </tr>
+  <tr>
+    <td>Costo del Personal</td>
+    <td>1</td>
+    <td>S./ 930.00</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align: right;"><b>TOTAL GENERAL:</b></td>
+    <td><b>S./ 5,640.00</b></td>
+  </tr>
+</table>
+
+<p>
+  <b>Nota:</b> Los costos presentados corresponden a un escenario donde se adquiere nueva infraestructura.
+  En la práctica, muchas universidades ya disponen de equipos, servidores y conexión a Internet, lo que
+  reduce significativamente los costos. Además, el uso de tecnologías de código abierto (Python, Flask,
+  MongoDB Community) elimina la necesidad de licencias de software, haciendo el proyecto económicamente
+  viable incluso con presupuestos limitados.
+</p>
+
+<h5>c) Factibilidad Operativa</h5>
+<p>
+  El sistema está diseñado para ser utilizado por el personal de la Oficina de RSU mediante una interfaz
+  web intuitiva. La capacitación requerida es moderada y puede realizarse en una sesión de 2-3 horas,
+  cubriendo aspectos como inicio de sesión, navegación por el dashboard, uso de filtros de búsqueda,
+  ejecución del proceso de scraping y consulta de estadísticas.
+</p>
+<p>
+  El mantenimiento básico (ejecución periódica del scraping, revisión de ofertas, actualización de
+  parámetros de configuración) puede ser asumido por el equipo de RSU con el apoyo puntual de personal
+  técnico de la universidad. Para tareas más complejas (actualización de código, incorporación de nuevos
+  portales, corrección de errores), se recomienda contar con el respaldo del área de sistemas o de
+  estudiantes en prácticas pre-profesionales.
+</p>
+
+<h5>II. Análisis Financiero</h5>
+
+<h5>a) Justificación de la Inversión</h5>
+<p>
+  El objetivo del sistema es resolver las observaciones realizadas a la Oficina de Responsabilidad Social
+  Universitaria (RSU) de la Universidad Privada de Tacna, relacionadas con la ineficiencia en el proceso
+  de recopilación y gestión de ofertas laborales. Estas observaciones fueron identificadas por la supervisora
+  de la oficina, quien indicó que el sistema permitirá ahorrar tiempo significativo al automatizar la búsqueda
+  de ofertas, proporcionando certeza sobre la disponibilidad y actualización de las oportunidades laborales
+  para la comunidad universitaria.
+</p>
+<p>
+  Actualmente, el personal de RSU dedica entre 2 y 3 horas diarias a revisar manualmente múltiples portales
+  de empleo, copiar información a hojas de cálculo y difundir las ofertas por correo electrónico o redes
+  sociales. Este proceso es propenso a errores, duplicidades y desactualización. El sistema propuesto
+  automatiza estas tareas, reduciendo el tiempo de dedicación a solo minutos diarios y mejorando la calidad
+  y accesibilidad de la información.
+</p>
+
+<h5>b) Beneficios del Proyecto</h5>
+<p>
+  Los beneficios del proyecto incluyen:
 </p>
 <ul>
   <li>
-    <b>Factibilidad técnica:</b> las tecnologías seleccionadas (Python, Flask, MongoDB, requests,
-    BeautifulSoup) son de uso extendido, cuentan con abundante documentación y pueden ejecutarse en la
-    infraestructura disponible en la universidad (equipos de desarrollo y servidores locales o en la nube).
+    <b>Ahorro de tiempo:</b> Reducción del tiempo de recopilación de ofertas de 2-3 horas diarias a
+    aproximadamente 10-15 minutos diarios, liberando al personal de RSU para otras actividades de mayor
+    valor agregado.
   </li>
   <li>
-    <b>Factibilidad económica:</b> todas las herramientas empleadas son de código abierto o disponen de
-    versiones gratuitas suficientemente potentes para las necesidades del proyecto, por lo que no se
-    requieren inversiones adicionales en licencias de software.
+    <b>Mejora en la calidad de la información:</b> Centralización de ofertas en una base de datos única,
+    con filtros automáticos por ubicación (Tacna) y eliminación de duplicados, garantizando información
+    más precisa y actualizada.
   </li>
   <li>
-    <b>Factibilidad operativa:</b> el personal de la Oficina de RSU puede utilizar el sistema mediante una
-    interfaz web sencilla, y la capacitación requerida es moderada. Además, el mantenimiento básico (ejecución
-    del scraping, revisión de ofertas, actualización de parámetros) puede ser asumido por el equipo de RSU
-    con el apoyo puntual de personal técnico de la universidad.
+    <b>Acceso mejorado para la comunidad universitaria:</b> Interfaz web que permite a estudiantes y
+    egresados consultar ofertas de manera autónoma, con filtros avanzados por empresa, nivel académico
+    y modalidad de trabajo.
+  </li>
+  <li>
+    <b>Análisis y estadísticas:</b> Generación automática de estadísticas sobre el mercado laboral en
+    Tacna, facilitando la toma de decisiones estratégicas en la Oficina de RSU.
+  </li>
+  <li>
+    <b>Escalabilidad:</b> Capacidad de incorporar nuevos portales de empleo y funcionalidades adicionales
+    sin requerir cambios mayores en la arquitectura del sistema.
   </li>
 </ul>
+
+<h5>c) Relación Beneficio / Costo</h5>
+<p>
+  Para el análisis financiero se consideran los siguientes parámetros:
+</p>
+<ul>
+  <li>
+    <b>Ahorro de tiempo diario:</b> 2.5 horas promedio (valoración a S./ 15.00 por hora de personal
+    administrativo) = S./ 37.50 diarios.
+  </li>
+  <li>
+    <b>Ahorro mensual:</b> S./ 37.50 × 22 días laborables = S./ 825.00 mensuales.
+  </li>
+  <li>
+    <b>Ahorro anual:</b> S./ 825.00 × 12 meses = S./ 9,900.00 anuales.
+  </li>
+  <li>
+    <b>Vida útil del sistema:</b> 5 años (considerando mantenimiento y actualizaciones).
+  </li>
+  <li>
+    <b>Tasa de descuento:</b> 10% anual (tasa de referencia para proyectos institucionales).
+  </li>
+</ul>
+
+<p>
+  <b>Cálculo del Valor Presente Neto (VPN):</b>
+</p>
+<table>
+  <tr>
+    <th>Año</th>
+    <th>Beneficio Anual</th>
+    <th>Factor de Descuento (10%)</th>
+    <th>Valor Presente</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>S./ 9,900.00</td>
+    <td>0.9091</td>
+    <td>S./ 9,000.09</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>S./ 9,900.00</td>
+    <td>0.8264</td>
+    <td>S./ 8,181.36</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>S./ 9,900.00</td>
+    <td>0.7513</td>
+    <td>S./ 7,437.87</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>S./ 9,900.00</td>
+    <td>0.6830</td>
+    <td>S./ 6,761.70</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>S./ 9,900.00</td>
+    <td>0.6209</td>
+    <td>S./ 6,146.91</td>
+  </tr>
+  <tr>
+    <td colspan="3" style="text-align: right;"><b>Valor Presente Neto (VPN):</b></td>
+    <td><b>S./ 37,527.93</b></td>
+  </tr>
+</table>
+
+<p>
+  <b>Inversión inicial:</b> S./ 5,640.00
+</p>
+
+<p>
+  <b>Relación Beneficio / Costo (B/C):</b>
+</p>
+<p style="text-align: center;">
+  <b>B/C = VPN / Inversión Inicial = S./ 37,527.93 / S./ 5,640.00 = 6.66</b>
+</p>
+
+<p>
+  <b>Conclusión:</b> Después de un análisis exhaustivo, se determina que el <b>Valor Presente Neto (VPN)</b>
+  es de <b>S./ 37,527.93</b>, mientras que la inversión inicial es de <b>S./ 5,640.00</b>. Al dividir el VPN
+  entre la inversión inicial, se obtiene una <b>relación beneficio/costo de 6.66</b>, lo que indica que por
+  cada sol invertido, el proyecto genera beneficios equivalentes a 6.66 soles. Dado que esta relación
+  supera ampliamente el umbral de 1.0, se concluye que el proyecto es <b>totalmente viable para su ejecución</b>,
+  ya que los beneficios esperados justifican ampliamente los costos de implementación y el sistema contribuirá
+  significativamente a mejorar la eficiencia operativa de la Oficina de RSU.
+</p>
 
 <h3>4.1.2. Iteraciones de Diseño y Arquitectura</h3>
 
@@ -481,11 +857,6 @@
   los requerimientos funcionales y no funcionales del sistema. Este documento se construyó progresivamente:
   partiendo de una versión inicial basada en entrevistas con la supervisora de RSU y refinándola a medida
   que se iban validando prototipos y descubriendo nuevas necesidades o restricciones.
-</p>
-<p>
-  El enfoque incremental permitió que el SRS no fuera un artefacto estático, sino un documento vivo que se
-  fue ajustando conforme se obtenía experiencia con el sistema, manteniendo siempre una traza clara entre
-  los requisitos establecidos y las funcionalidades implementadas.
 </p>
 
 <h4>4.1.2.2. Elaboración del Documento SAD</h4>

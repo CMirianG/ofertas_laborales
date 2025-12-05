@@ -1,0 +1,344 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Diagrama de Secuencia - RF-01: Autenticación de Usuarios
+
+actor "Personal de RSU" as Usuario
+participant "Interfaz Web" as Interfaz
+participant "Controlador Auth" as Controlador
+participant "MongoDBManager" as Manager
+participant "MongoDB" as DB
+
+Usuario -> Interfaz: 1. Accede a la URL del sistema
+activate Interfaz
+Interfaz -> Interfaz: 2. Muestra página de inicio de sesión\n(campos Usuario y Contraseña)
+Interfaz -> Usuario: Renderiza login.html
+
+Usuario -> Interfaz: 3. Ingresa nombre de usuario\ny contraseña
+Interfaz -> Interfaz: 4. Recibe las credenciales ingresadas
+
+Usuario -> Interfaz: 5. Selecciona opción "Iniciar Sesión"
+Interfaz -> Controlador: 6. Envía credenciales (POST /login)
+activate Controlador
+Controlador -> Manager: 7. Valida credenciales\n(get_user_by_username)
+activate Manager
+Manager -> DB: 8. Realiza petición\n(consulta usuario)
+activate DB
+DB --> Manager: 9. Devuelve datos del usuario
+deactivate DB
+Manager -> Manager: 10. Compara hash de contraseña\n(check_password_hash)
+Manager --> Controlador: 11. Credenciales válidas/inválidas
+deactivate Manager
+
+alt Credenciales válidas
+    Controlador -> Controlador: 12. Crea sesión activa\n(almacena ID y nombre de usuario)
+    Controlador -> Interfaz: 13. Redirige al dashboard principal
+    Interfaz -> Usuario: Muestra dashboard
+else Credenciales inválidas
+    Controlador -> Interfaz: 14. Devuelve mensaje de error\n"Usuario o contraseña incorrectos"
+    Interfaz -> Interfaz: 15. Muestra mensaje de error
+    Interfaz -> Usuario: Permanece en página de inicio de sesión
+    note right: Flujo Alternativo 01
+else MongoDB no disponible
+    Manager -> Manager: 16. Detecta que no hay conexión a MongoDB
+    alt Credenciales de emergencia (admin/admin123)
+        Controlador -> Controlador: 17. Crea sesión offline
+        Controlador -> Interfaz: 18. Devuelve mensaje\n"Inicio de sesión en modo sin conexión"
+        Interfaz -> Usuario: Muestra mensaje de modo offline
+    else Otras credenciales
+        Controlador -> Interfaz: 19. Devuelve mensaje\n"MongoDB no disponible.\nSolo admin/admin123 permitido"
+        Interfaz -> Usuario: Muestra mensaje de error
+    end
+    note right: Flujo Alternativo 02
+end
+deactivate Controlador
+
+Usuario -> Interfaz: 10. Navega por el sistema
+Interfaz -> Controlador: 11. Solicita acceso a ruta protegida
+Controlador -> Controlador: 12. Verifica sesión activa\n(login_required decorator)
+Controlador -> Interfaz: 13. Permite acceso a rutas protegidas
+Interfaz -> Usuario: Muestra contenido protegido
+
+Usuario -> Interfaz: 12. Selecciona opción "Cerrar Sesión"
+Interfaz -> Controlador: 13. Solicita cerrar sesión (GET /logout)
+activate Controlador
+Controlador -> Controlador: 14. Limpia sesión del usuario\n(elimina datos de sesión)
+Controlador -> Interfaz: 15. Devuelve mensaje\n"Sesión cerrada exitosamente"
+deactivate Controlador
+Interfaz -> Interfaz: 16. Muestra mensaje de confirmación
+Interfaz -> Usuario: Redirige a página de inicio de sesión
+
+deactivate Interfaz
+
+@enduml
+
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Diagrama de Secuencia - RF-02: Extracción Automática de Ofertas (Scraping)
+
+actor "Personal de RSU" as Usuario
+participant "Interfaz Web" as Interfaz
+participant "Controlador Ofertas" as Controlador
+participant "ScrapingService" as Scraping
+participant "Portales de Empleo" as Portales
+participant "MongoDBManager" as Manager
+participant "MongoDB" as DB
+
+Usuario -> Interfaz: 1. Accede al dashboard del sistema
+activate Interfaz
+Interfaz -> Interfaz: 2. Muestra dashboard con\nbotón "Extraer Ofertas"
+Interfaz -> Usuario: Renderiza dashboard.html
+
+Usuario -> Interfaz: 3. Selecciona opción "Extraer Ofertas"
+Interfaz -> Controlador: 4. Solicita ejecutar extracción\n(POST /extraer-ofertas)
+activate Controlador
+Controlador -> Controlador: 5. Valida usuario autenticado\ny disponibilidad de MongoDB
+
+alt MongoDB disponible
+    Controlador -> Scraping: 6. Inicia proceso de scraping\n(run_scraping)
+    activate Scraping
+    
+    loop Para cada portal configurado
+        Scraping -> Portales: 7. Realiza petición HTTP\n(obtiene contenido HTML)
+        activate Portales
+        Portales --> Scraping: 8. Devuelve HTML de ofertas
+        deactivate Portales
+        
+        Scraping -> Scraping: 9. Parsea HTML con BeautifulSoup\n(identifica elementos de ofertas)
+        Scraping -> Scraping: 10. Aplica filtros automáticos\n(filtrado por ubicación Tacna)
+        
+        loop Para cada oferta encontrada
+            Scraping -> Manager: 11. Verifica si existe en MongoDB\n(compara identificadores)
+            activate Manager
+            Manager -> DB: 12. Realiza petición\n(consulta oferta por identificador)
+            activate DB
+            alt Oferta existe
+                DB --> Manager: 13. Devuelve oferta encontrada
+                Manager -> DB: 14. Realiza proceso de actualización\n(update_one)
+                DB -> DB: 15. Guarda información actualizada
+            else Oferta no existe
+                DB --> Manager: 16. Devuelve oferta no encontrada
+                Manager -> DB: 17. Realiza proceso de guardado\n(insert_one)
+                DB -> DB: 18. Guarda información nueva
+            end
+            DB --> Manager: 19. Devuelve confirmación
+            deactivate DB
+            Manager --> Scraping: 20. Confirma operación
+            deactivate Manager
+        end
+        
+        Scraping -> Scraping: 21. Registra estadísticas por portal\n(nuevas, actualizadas, errores)
+        
+        alt Error en portal
+            Scraping -> Scraping: 22. Registra error en logs\nincrementa contador de errores
+            Scraping -> Scraping: 23. Continúa con siguiente portal
+            note right: Flujo Alternativo 02
+        end
+    end
+    
+    Scraping -> Scraping: 24. Genera resumen total\n(nuevas, actualizadas, errores)
+    Scraping --> Controlador: 25. Devuelve resumen de extracción
+    deactivate Scraping
+    
+    Controlador -> Interfaz: 26. Devuelve mensaje\n"Extracción completada: X nuevas,\nY actualizadas, Z errores"
+    Interfaz -> Interfaz: 27. Muestra mensaje de confirmación
+    Interfaz -> Usuario: Visualiza resumen
+else MongoDB no disponible
+    Controlador -> Interfaz: 28. Devuelve mensaje de error\n"MongoDB no está disponible.\nPara extraer ofertas necesitas instalar MongoDB."
+    Interfaz -> Interfaz: 29. Muestra mensaje de error
+    Interfaz -> Usuario: Muestra error
+    note right: Flujo Alternativo 01
+end
+deactivate Controlador
+deactivate Interfaz
+
+@enduml
+
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Diagrama de Secuencia - RF-03: Visualización de Dashboard
+
+actor "Personal de RSU" as Usuario
+participant "Interfaz Web" as Interfaz
+participant "Controlador Dashboard" as Controlador
+participant "MongoDBManager" as Manager
+participant "MongoDB" as DB
+
+Usuario -> Interfaz: 1. Accede al sistema o selecciona\n"Dashboard" desde menú
+activate Interfaz
+Interfaz -> Controlador: 2. Solicita dashboard (GET /dashboard)
+activate Controlador
+Controlador -> Controlador: 3. Valida usuario autenticado\n(login_required decorator)
+
+alt MongoDB disponible
+    Controlador -> Manager: 4. Consulta últimas 10 ofertas\n(get_ofertas con límite)
+    activate Manager
+    Manager -> DB: 5. Realiza petición\n(consulta ofertas ordenadas por fecha)
+    activate DB
+    DB --> Manager: 6. Devuelve lista de ofertas
+    deactivate DB
+    Manager --> Controlador: 7. Devuelve lista de ofertas
+    deactivate Manager
+    
+    Controlador -> Manager: 8. Ejecuta agregación\n(calcula total y distribución por fuente)
+    activate Manager
+    Manager -> DB: 9. Realiza petición\n(agregación de estadísticas)
+    activate DB
+    DB --> Manager: 10. Devuelve estadísticas básicas
+    deactivate DB
+    Manager --> Controlador: 11. Devuelve estadísticas
+    deactivate Manager
+    
+    Controlador -> Interfaz: 12. Devuelve datos\n(últimas ofertas y estadísticas)
+    Interfaz -> Interfaz: 13. Renderiza dashboard.html
+    Interfaz -> Usuario: 14. Muestra dashboard con ofertas\ny estadísticas básicas
+    Interfaz -> Usuario: 15. Muestra opciones adicionales\n("Ver todas", "Extraer ofertas",\n"Ver estadísticas")
+else MongoDB no disponible
+    Controlador -> Interfaz: 16. Devuelve valores por defecto\n(listado vacío, total = 0)
+    Interfaz -> Interfaz: 17. Renderiza dashboard con valores vacíos
+    Interfaz -> Interfaz: 18. Muestra mensaje informativo\n"Base de datos no disponible.\nModo limitado."
+    Interfaz -> Usuario: Muestra dashboard en modo limitado
+    note right: Flujo Alternativo 01
+end
+deactivate Controlador
+
+Usuario -> Interfaz: 9. Selecciona oferta o navega\na otras secciones
+deactivate Interfaz
+
+@enduml
+
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Diagrama de Secuencia - RF-04: Visualización de Detalle de Oferta
+
+actor "Personal de RSU" as Usuario
+participant "Interfaz Web" as Interfaz
+participant "Controlador Ofertas" as Controlador
+participant "MongoDBManager" as Manager
+participant "MongoDB" as DB
+
+Usuario -> Interfaz: 1. Selecciona oferta específica\n(desde dashboard o listado)
+activate Interfaz
+Interfaz -> Interfaz: 2. Obtiene ID de oferta seleccionada
+Interfaz -> Controlador: 3. Solicita detalle de oferta\n(GET /oferta/<id>)
+activate Controlador
+Controlador -> Controlador: 4. Valida usuario autenticado\nrecibe ID de oferta
+
+Controlador -> Manager: 5. Busca oferta por ID\n(get_oferta_by_id)
+activate Manager
+Manager -> DB: 6. Realiza petición\n(consulta oferta por _id)
+activate DB
+
+alt Oferta encontrada
+    DB --> Manager: 7. Devuelve datos de la oferta
+    deactivate DB
+    Manager --> Controlador: 8. Devuelve información completa de oferta
+    deactivate Manager
+    
+    Controlador -> Controlador: 9. Recupera todos los campos\n(título, empresa, ubicación,\nnivel académico, modalidad,\ndescripción, enlace, fuente, fecha)
+    
+    Controlador -> Interfaz: 10. Devuelve datos de la oferta
+    Interfaz -> Interfaz: 11. Renderiza ver_oferta.html
+    Interfaz -> Usuario: 12. Muestra detalle completo de la oferta
+    Interfaz -> Usuario: 13. Muestra enlace al portal original
+else Oferta no encontrada
+    DB --> Manager: 14. Devuelve oferta no encontrada
+    deactivate DB
+    Manager --> Controlador: 15. Devuelve error: oferta no encontrada
+    deactivate Manager
+    Controlador -> Interfaz: 16. Devuelve mensaje de error\n"Oferta no encontrada"
+    Interfaz -> Interfaz: 17. Muestra mensaje de error
+    Interfaz -> Usuario: 18. Redirige al listado de ofertas
+    note right: Flujo Alternativo 01
+end
+deactivate Controlador
+deactivate Interfaz
+
+@enduml
+
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Diagrama de Secuencia - RF-05: Generación de Estadísticas
+
+actor "Personal de RSU" as Usuario
+participant "Interfaz Web" as Interfaz
+participant "Controlador Dashboard" as Controlador
+participant "MongoDBManager" as Manager
+participant "MongoDB" as DB
+
+Usuario -> Interfaz: 1. Selecciona opción "Estadísticas"\ndesde menú o dashboard
+activate Interfaz
+Interfaz -> Controlador: 2. Solicita estadísticas (GET /estadisticas)
+activate Controlador
+Controlador -> Controlador: 3. Valida usuario autenticado\nredirige a página de estadísticas
+
+Controlador -> Manager: 4. Solicita estadísticas\n(get_estadisticas)
+activate Manager
+
+alt MongoDB disponible y hay ofertas
+    Manager -> DB: 5. Realiza petición\n(count_documents - total de ofertas)
+    activate DB
+    DB --> Manager: 6. Devuelve total de ofertas
+    deactivate DB
+    
+    Manager -> DB: 7. Realiza petición\n(agregación: agrupa por nivel académico)
+    activate DB
+    DB --> Manager: 8. Devuelve distribución por nivel académico
+    deactivate DB
+    
+    Manager -> DB: 9. Realiza petición\n(agregación: agrupa por modalidad)
+    activate DB
+    DB --> Manager: 10. Devuelve distribución por modalidad
+    deactivate DB
+    
+    Manager -> DB: 11. Realiza petición\n(agregación: agrupa por fuente)
+    activate DB
+    DB --> Manager: 12. Devuelve distribución por fuente
+    deactivate DB
+    
+    Manager -> DB: 13. Realiza petición\n(agregación: top 10 empresas)
+    activate DB
+    DB --> Manager: 14. Devuelve lista de top empresas
+    deactivate DB
+    
+    Manager --> Controlador: 15. Devuelve todas las estadísticas calculadas
+    deactivate Manager
+    
+    Controlador -> Interfaz: 16. Devuelve datos estadísticos
+    Interfaz -> Interfaz: 17. Renderiza estadisticas.html\n(tablas, gráficos, listas)
+    Interfaz -> Usuario: 18. Muestra estadísticas\n(total, por nivel, por modalidad,\npor fuente, top empresas)
+    Interfaz -> Usuario: 19. Muestra información organizada
+    Usuario -> Usuario: 20. Analiza tendencias del\nmercado laboral en Tacna
+else MongoDB no disponible o sin ofertas
+    Manager -> Manager: 21. Detecta que no hay datos disponibles
+    Manager --> Controlador: 22. Devuelve sin datos disponibles
+    deactivate Manager
+    Controlador -> Interfaz: 23. Devuelve valores por defecto\n(todo = 0, distribuciones vacías)
+    Interfaz -> Interfaz: 24. Renderiza estadísticas con valores vacíos
+    Interfaz -> Interfaz: 25. Muestra mensaje informativo\n"No hay datos disponibles o\nbase de datos no accesible"
+    Interfaz -> Usuario: Muestra estructura sin datos reales
+    note right: Flujo Alternativo 01
+end
+deactivate Controlador
+deactivate Interfaz
+
+@enduml
