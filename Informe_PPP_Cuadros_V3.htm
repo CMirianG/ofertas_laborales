@@ -386,39 +386,39 @@
   avance del proyecto.
 </p>
 
-<h2>2.10. METODOLOGÍA DE DESARROLLO INCREMENTAL E ITERATIVA</h2>
+<h2>2.10. METODOLOGÍA DE DESARROLLO INCREMENTAL</h2>
 <p>
-  La metodología de trabajo empleada en el proyecto se basa en un enfoque <b>incremental e iterativo con
-  prototipos evolutivos</b>. En lugar de intentar definir y construir todo el sistema desde el inicio, se
-  optó por desarrollar versiones parciales pero funcionales que fueron refinadas y ampliadas en ciclos
-  sucesivos, incorporando de manera progresiva nuevas funcionalidades y mejoras de calidad.
+  La metodología de trabajo empleada en el proyecto se basa en un enfoque <b>incremental con prototipos
+  evolutivos</b>. En lugar de intentar definir y construir todo el sistema desde el inicio, se optó por
+  desarrollar versiones parciales pero funcionales que fueron refinadas y ampliadas en ciclos sucesivos,
+  incorporando de manera progresiva nuevas funcionalidades y mejoras de calidad.
 </p>
 <p>
-  En una primera iteración se construyó una versión <b>simplificada y monolítica</b> del sistema en
+  En una primera fase se construyó una versión <b>simplificada y monolítica</b> del sistema en
   <code>app.py</code>, que permitía validar rápidamente el flujo básico de autenticación, visualización de
-  ofertas y navegación entre vistas. A partir de esta base se llevaron a cabo nuevas iteraciones en las que
-  se refactorizó la arquitectura hacia una estructura por capas (controladores, servicios, configuración),
-  se incorporó el servicio de scraping, se enriquecieron los filtros de búsqueda y se añadieron estadísticas
-  de apoyo a la toma de decisiones.
+  ofertas y navegación entre vistas. A partir de esta base se llevaron a cabo nuevas fases en las que se
+  refactorizó la arquitectura hacia una estructura por capas (controladores, servicios, configuración), se
+  incorporó el servicio de scraping, se enriquecieron los filtros de búsqueda y se añadieron estadísticas de
+  apoyo a la toma de decisiones.
 </p>
 <p>
-  Cada iteración incluyó actividades de <b>análisis</b> (revisión de necesidades y feedback de la Oficina de
+  Cada fase incluyó actividades de <b>análisis</b> (revisión de necesidades y feedback de la Oficina de
   RSU), <b>diseño</b> (ajustes en la arquitectura y en los modelos de datos), <b>implementación</b> (código
-  de backend, frontend y servicios) y <b>pruebas</b> (verificación de casos de uso clave). Este ciclo
-  repetitivo permitió detectar y corregir problemas de forma temprana, adaptar el alcance del proyecto a
-  los tiempos de las prácticas pre-profesionales y asegurar que el sistema evolucionara alineado con las
-  prioridades reales de la Oficina de Responsabilidad Social Universitaria.
+  de backend, frontend y servicios) y <b>pruebas</b> (verificación de casos de uso clave). Este proceso
+  permitió detectar y corregir problemas de forma temprana, adaptar el alcance del proyecto a los tiempos
+  de las prácticas pre-profesionales y asegurar que el sistema evolucionara alineado con las prioridades
+  reales de la Oficina de Responsabilidad Social Universitaria.
 </p>
 
 <h1>CAPÍTULO IV: APORTE TÉCNICO – ACADÉMICO</h1>
 
-<h2>4.1. METODOLOGÍA DE DESARROLLO INCREMENTAL E ITERATIVA</h2>
+<h2>4.1. METODOLOGÍA DE DESARROLLO INCREMENTAL</h2>
 <p>
   El aporte técnico–académico del proyecto se enmarca en la aplicación de una <b>metodología de desarrollo
-  incremental e iterativa</b>, basada en la construcción de prototipos evolutivos. Este enfoque permitió
-  responder de manera flexible a las necesidades de la Oficina de Responsabilidad Social Universitaria
-  (RSU), integrando de forma progresiva nuevos requisitos y mejoras arquitectónicas sin perder de vista la
-  viabilidad del proyecto en el contexto de las prácticas pre-profesionales.
+  incremental</b>, basada en la construcción de prototipos evolutivos. Este enfoque permitió responder de
+  manera flexible a las necesidades de la Oficina de Responsabilidad Social Universitaria (RSU), integrando
+  de forma progresiva nuevos requisitos y mejoras arquitectónicas sin perder de vista la viabilidad del
+  proyecto en el contexto de las prácticas pre-profesionales.
 </p>
 
 <h3>4.1.1. Inicio del Proceso de Desarrollo</h3>
@@ -475,8 +475,8 @@
 <p><b>Objetivo general</b></p>
 <p>
   Diseñar e implementar un <b>Sistema de Ofertas Laborales para Tacna</b>, basado en una metodología de
-  desarrollo incremental e iterativa, que automatice la recolección, la gestión y el análisis de ofertas
-  laborales para la comunidad universitaria de la UPT.
+  desarrollo incremental, que automatice la recolección, la gestión y el análisis de ofertas laborales para
+  la comunidad universitaria de la UPT.
 </p>
 <p><b>Objetivos específicos</b></p>
 <ul>
@@ -849,23 +849,23 @@
   significativamente a mejorar la eficiencia operativa de la Oficina de RSU.
 </p>
 
-<h3>4.1.2. Iteraciones de Diseño y Arquitectura</h3>
+<h3>4.1.2. Fases de Diseño y Arquitectura</h3>
 
 <h4>4.1.2.1. Elaboración del Documento SRS</h4>
 <p>
-  En la primera serie de iteraciones se elaboró el <b>Documento SRS</b>, que recoge de manera estructurada
-  los requerimientos funcionales y no funcionales del sistema. Este documento se construyó progresivamente:
-  partiendo de una versión inicial basada en entrevistas con la supervisora de RSU y refinándola a medida
-  que se iban validando prototipos y descubriendo nuevas necesidades o restricciones.
+  En la primera fase se elaboró el <b>Documento SRS</b>, que recoge de manera estructurada los
+  requerimientos funcionales y no funcionales del sistema. Este documento se construyó progresivamente:
+  partiendo de una versión inicial basada en entrevistas con la supervisora de RSU y refinándola a medida que
+  se iban validando prototipos y descubriendo nuevas necesidades o restricciones.
 </p>
 
 <h4>4.1.2.2. Elaboración del Documento SAD</h4>
 <p>
   Paralelamente, se elaboró el <b>Documento SAD</b>, que describe la arquitectura de software adoptada. En
-  las primeras iteraciones, el SAD se centró en documentar la versión monolítica inicial y las decisiones
-  relacionadas con la selección de tecnologías. En iteraciones posteriores, se fue enriqueciendo con la
-  descripción de la arquitectura por capas, los componentes (controladores, servicios, utilidades) y los
-  patrones utilizados (MVC ligero, separación de responsabilidades).
+  las primeras fases, el SAD se centró en documentar la versión monolítica inicial y las decisiones
+  relacionadas con la selección de tecnologías. En fases posteriores, se fue enriqueciendo con la descripción
+  de la arquitectura por capas, los componentes (controladores, servicios, utilidades) y los patrones
+  utilizados (MVC ligero, separación de responsabilidades).
 </p>
 <p>
   De esta forma, el SAD refleja la evolución arquitectónica del sistema y sirve como referencia para
